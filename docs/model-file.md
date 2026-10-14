@@ -61,7 +61,7 @@ The preferred units only change how values are shown: inputs accept any unit (`5
 | key | meaning |
 |---|---|
 | `name` | referenced by objects |
-| `library` | optional: start from a library material: `"Si"`, `"Diamond"`, `"Ge"`, `"GaAs"`, `"3C-SiC"` (cubic), `"4H-SiC"` (hexagonal, c-axis along z), `"Al"`, `"Au"`, `"Cr"` (isotropic, polycrystalline; bulk values: thin films are often softer and conduct less, e.g. Au 317 W/(m·K) in bulk), `"SiO2"` (fused silica, isotropic). Any property given explicitly overrides the library value |
+| `library` | optional: start from a library material: `"Si"`, `"Diamond"`, `"Ge"`, `"GaAs"`, `"3C-SiC"` (cubic), `"4H-SiC"` (hexagonal, c-axis along z), `"Al"`, `"Au"`, `"Cr"`, `"Pd"` (isotropic, polycrystalline; bulk values: thin films are often softer and conduct less, e.g. Au 317 W/(m·K) in bulk), `"SiO2"` (fused silica, isotropic), `"LiNbO3"` (lithium niobate, trigonal: anisotropic stiffness and conductivity, c-axis along z, x along an a-axis; elastic constants at constant electric field, piezoelectricity not included). Any property given explicitly overrides the library value |
 | `model` | `isotropic` (`rho`, `E`, `nu`), `cubic` (`rho`, `C11`, `C12`, `C44`), `hexagonal` (`rho`, `C11`, `C12`, `C13`, `C33`, `C44`; c-axis = z), `anisotropic` (`rho`, `C11`..`C66`, Voigt) |
 | `k` | thermal conductivity, isotropic, e.g. `"148[W/(m*K)]"` (heat transfer only) |
 | `kxx`, `kyy`, `kzz` | anisotropic thermal conductivity in the crystal frame, instead of `k`; rotated with `rotation_deg` |
