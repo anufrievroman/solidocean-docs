@@ -9,11 +9,15 @@ icon: terminal
 
 {% tabs %}
 {% tab title="Graphical User Interface" %}
-Ideal for designing the model. The `New`  button offers templates of the models. Launch as:
+Graphical interface is ideal for designing the model. The `New` button offers templates of the models. Launch via an icon or via terminal as:
 
 ```bash
 solidocean
 ```
+
+This should launch the graphical inteface (it can be slow the very first time):
+
+<figure><img src=".gitbook/assets/screenshot.jpg" alt="The SolidOcean interface: the model tree, the wavevector sweep settings and the mesh of a silicon unit cell with an aluminium pillar"><figcaption><p>Graphical interface of SolidOcean</p></figcaption></figure>
 {% endtab %}
 
 {% tab title="Command line" %}
@@ -62,7 +66,7 @@ f = "2*pi/a * 1[1/s]"
 
 A unit belongs to the value right before it, so `x / 2[um]` is x / (2 µm) and `2[um]^2` is (2 µm)². Variables may reference each other in any order. **Everything is converted to SI**, and every result file is in SI. The preferred units in `[project]` (`length_unit`, `frequency_unit`, `time_unit`) change only how values are displayed in the interface and on plot axes.
 
-### The command line
+### The command line flags
 
 ```bash
 solidocean                                # the interface (File → New offers ready-made models)
@@ -86,7 +90,7 @@ solidocean --install-app                  # macOS: add SolidOcean.app to ~/Appli
 | `--install-app [DIR]` | macOS: create `SolidOcean.app` (default `~/Applications`) and exit     |
 | `--version`           | print the version                                                      |
 
-A headless run logs the mesh, the progress through the sweep and the files it wrote:
+A headless run logs the mesh, the progress through the sweep, and the files it wrote:
 
 ```
 $ solidocean heat_bar.toml
