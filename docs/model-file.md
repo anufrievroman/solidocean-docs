@@ -86,11 +86,25 @@ Common keys: `type`, `name`, `op` (`add` | `subtract`), `material` (for `add`), 
 | `cylinder` | `center` (centre of the base), `axis` (direction), `radius`, `height` |
 | `cone` | `center`, `axis`, `radius1` (base), `radius2` (top), `height` |
 | `sphere` | `center`, `radius` |
-| `prism` | `points = [[x, y], ...]` (polygon), `z0`, `height` (extruded along z) |
+| `prism` | `points = [[x, y], ...]` (polygon, any number of corners, concave allowed), `z0`, `height` (extruded along z) |
+| `loft` | `sections = [{ z, points = [[x, y], ...] }, ...]`: two or more polygons in x-y planes at heights `z`, joined in order by straight side faces (sloped sidewalls, frusta, tapers, bulges). Corner i of one section joins corner i of the next, so all sections have the same number of corners; consecutive sections need different `z`. Outlines may be concave and given in either sense |
 | `triangle` | "Triangular block": `center`, `base` (along x), `height` (base to apex, along y), `thickness` (along z) — an isosceles triangle centred on its bounding box, extruded along z |
 | `cell` | "Lattice cell": `center`, `height` — the unit cell of the `[lattice]`: the parallelogram spanned by a1, a2 in the x-y plane, centred on `center`, extruded along z. Always matches the periodicity |
 
-Every type except `cell` also takes `rotation = [about_x, about_y, about_z]`: angles in degrees (plain numbers or expressions), applied about the global x, then y, then z axis, around the object's reference point (`center`; the base centre for cylinders and cones; the polygon centroid at mid-height for prisms). Omitted = not rotated. Example: a triangular block standing on its side, `rotation = ["90", "0", "0"]`.
+Every type except `cell` also takes `rotation = [about_x, about_y, about_z]`: angles in degrees (plain numbers or expressions), applied about the global x, then y, then z axis, around the object's reference point (`center`; the base centre for cylinders and cones; the polygon centroid at mid-height for prisms; the centroid of all corners for lofts). Omitted = not rotated. Example: a triangular block standing on its side, `rotation = ["90", "0", "0"]`.
+
+Example, a mesa 2 µm wide at its base and 1 µm at its 700 nm high top (in the file, each section is written as an `[[objects.sections]]` table):
+
+```toml
+[[objects]]
+type = "loft"
+name = "mesa"
+material = "Si"
+sections = [
+  { z = "0", points = [["-1[um]", "-1[um]"], ["1[um]", "-1[um]"], ["1[um]", "1[um]"], ["-1[um]", "1[um]"]] },
+  { z = "700[nm]", points = [["-0.5[um]", "-0.5[um]"], ["0.5[um]", "-0.5[um]"], ["0.5[um]", "0.5[um]"], ["-0.5[um]", "0.5[um]"]] },
+]
+```
 
 Every type except `cell` can also be repeated as an array: `array = [nx, ny, nz]` copies along x, y and z (whole numbers >= 1, or expressions; the object itself is the first copy) and `spacing = [dx, dy, dz]`, the shift between neighbouring copies (negative = towards -x, -y, -z). The copies are one object: one name, one material, one `on` selection or region; copies that touch or overlap merge. Rotations turn each copy about its own reference point; the array runs along the global axes. Omitted = a single object (at most 10000 copies). Example, a 4 x 4 array of holes:
 
