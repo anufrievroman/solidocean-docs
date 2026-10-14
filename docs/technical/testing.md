@@ -41,4 +41,4 @@ solidocean-docs/     the documentation
 Convergence orders are fitted against the measured **mean edge length** of each mesh, not the nominal `max_size`: Gmsh refines near curved and small features and never makes elements larger than about a tenth of the model, so `max_size` alone misstates the element size.
 {% endhint %}
 
-To add a case, write a module in `validation/` with a `TITLE`, an `ABOUT` text and a `run(quick)` function returning a `common.Report` (its tables, figures and checks), then add it to `CASES` and `GROUPS` in `validation/run.py`, and to the summary table of the [Validation](../validation/) page.
+To add a case, write a module in `validation/` with a `TITLE`, an `ABOUT` text and a `run(quick)` function returning a `common.Report` (its figures and checks), then add it to `CASES` and `GROUPS` in `validation/run.py`, and to the summary table of the [Validation](../validation/) page.
