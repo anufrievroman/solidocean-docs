@@ -7,6 +7,8 @@ icon: graduation-cap
 
 A square lattice of holes in a 200 nm silicon membrane: the model is **one unit cell**, the periodicity is declared in `[lattice]`, and the eigenfrequencies are solved along a path through the Brillouin zone.
 
+<figure><img src="../.gitbook/assets/phonon-dispersion.jpg" alt="A unit cell in SolidOcean with its periodic face pairs tinted for x and y, next to the computed dispersion branches from Γ to K"><figcaption><p>Unit cell with periodicity in x and y, and the dispersion branches along the wavevector sweep</p></figcaption></figure>
+
 {% code title="square.toml (excerpt)" %}
 ```toml
 [variables]

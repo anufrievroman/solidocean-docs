@@ -503,18 +503,22 @@ These are written for the angular frequency $$\omega = 2\pi f$$, as the literatu
 | `velocity` | the group velocity averaged over the states at that frequency | m/s |
 | `flux` | the energy a convex boundary at `temperature` radiates into the structure, averaged over its directions | W Hz⁻¹ m⁻¹ (per unit length of that boundary) |
 
-A mesh of the irreducible wedge is multiplied by the number of copies that fill the zone (8 for a square lattice, 12 for a hexagonal one), taken from the area the mesh covers, which assumes what the wedge assumes: that the cell has the point symmetry of the lattice. Every band takes part. `temperature` (the flux only) is an expression such as `"0.3[K]"`. A run writes each spectrum as `<name>.csv`. Reference: the methods of Zen et al., *Nat. Commun.* **5**:3435 (2014).
+A mesh of the irreducible wedge is multiplied by the number of copies that fill the zone (8 for a square lattice, 12 for a hexagonal one), taken from the area the mesh covers, which assumes what the wedge assumes: that the cell has the point symmetry of the lattice. Every band takes part. `temperature` (the flux only) is an expression such as `"0.3[K]"`. A run writes each spectrum as `<name>.csv`. The method follows [1].
 
 **Where the bands stop being complete.** A run computes a fixed number of bands at every wavevector, so every state is accounted for only below the *lowest* value the topmost band takes over the zone — often at Γ, where the folded bands of a membrane crowd together, though it can be at any corner of the zone. That frequency, not the highest one reached anywhere, is where a spectrum ends: above it states are missing and the curve sags towards zero, which looks like a physical cut-off and is not. Spectra and conductance curves stop there by default; `show_incomplete = true` carries them on as a lower bound and marks the frequency with a dashed line. If the topmost band itself falls to zero somewhere (too few bands for a membrane, whose acoustic branches vanish at Γ) no range is complete at all, and the plot says so. Near zero a branch is a cone that no triangulation resolves, so the lowest frequencies are unreliable at either end.
 
-Conductance plots (`kind = "conductance"`) integrate that heat flux over the computed bands and draw it against temperature, log-log by default:
+Conductance plots (`kind = "conductance"`) integrate the heat flux of the whole zone and draw it against temperature, log-log by default. As in Eq. (1) of [1], the integral runs over the Brillouin zone, with the outgoing velocity averaged over the directions of a convex boundary (|**v**|/π):
 
-$$P(T) = \int p(\omega, T)\,\mathrm{d}\omega,\qquad
-G(T) = \frac{\mathrm{d}P}{\mathrm{d}T} = \frac{S}{4\pi^3}\int \hbar\omega\,\frac{\partial n}{\partial T}\sum_{j,m} L_{jm}(\omega)\,\mathrm{d}\omega$$
+$$P(T) = \sum_j \int_\mathrm{BZ} \frac{\mathrm{d}^2k}{(2\pi)^2}\,\hbar\omega_j\,n(\omega_j, T)\,\frac{|\nabla_\mathbf{k}\omega_j|}{\pi},\qquad
+G(T) = \frac{\mathrm{d}P}{\mathrm{d}T} = \sum_j \int_\mathrm{BZ} \frac{\mathrm{d}^2k}{(2\pi)^2}\,\hbar\omega_j\,\frac{\partial n}{\partial T}\,\frac{|\nabla_\mathbf{k}\omega_j|}{\pi}$$
 
-`transport` chooses between `conductance` (the ballistic thermal conductance G, in W K⁻¹ m⁻¹) and `power` (the radiated power P, in W m⁻¹), both per unit length of the boundary heat enters through. The sum over the mesh does not depend on the temperature, so it is taken once and each temperature is a quadrature over the same sampled spectrum. The curve runs from `t_min` to `t_max` over `t_points` points, spaced logarithmically while the x axis is, and `bins` sets the frequency quadrature as for a spectrum. The contour lengths do not depend on the temperature, so the mesh is summed once for the whole curve.
+`transport` chooses between `conductance` (the ballistic thermal conductance G, in W K⁻¹ m⁻¹) and `power` (the radiated power P, in W m⁻¹), both per unit length of the boundary heat enters through. Each band is the plane through its corner frequencies over a triangle, as for the spectra, and every triangle is divided into 64 equal ones sampled at their centroids. The samples do not depend on the temperature, so they are gathered once and each point of the curve is a sum over them. Changing the variable from **k** to ω makes P the frequency integral of the `flux` spectrum, ∫ p(ω, T) dω, so the two plots describe the same heat. The curve runs from `t_min` to `t_max` over `t_points` points, spaced logarithmically while the x axis is. The derivation and references are on the [Solid mechanics](physics/solid-mechanics.md#coherent-heat-conduction) page.
 
-**The integral stops where the bands stop being complete** (above), so a curve is a lower bound once the occupied frequencies k<sub>B</sub>T/h approach that line, and it flattens instead of rising: a trustworthy point needs complete bands up to roughly nine times k<sub>B</sub>T/ħ (19 GHz covers 99 % of the phonons at 0.1 K). The plot panel compares the two and says where the curve stops being reliable; raising `num_eigs` carries it higher. A run writes the curve as `<name>.csv`.
+**The integral stops where the bands stop being complete** (above), so a curve is a lower bound once the occupied frequencies k<sub>B</sub>T/h approach that line, and it flattens instead of rising: a trustworthy point needs complete bands up to roughly nine times k<sub>B</sub>T/h (19 GHz covers 99 % of the phonons at 0.1 K). The plot panel compares the two and says where the curve stops being reliable; raising `num_eigs` carries it higher. A run writes the curve as `<name>.csv`.
+
+**References**
+
+\[1] N. Zen, T. A. Puurtinen, T. J. Isotalo, S. Chaudhuri and I. J. Maasilta, Engineering thermal conductance using a two-dimensional phononic crystal, *Nat. Commun.* **5**, 3435 (2014).
 
 Field plots (`kind = "field"`) show `quantity` on the structure (field results; empty = T or the displacement magnitude): any expression of the solution, evaluated at the nodes (gradients, fluxes, strains and stresses averaged over the elements meeting there), e.g. `"sqrt(qx^2 + qy^2 + qz^2)"` or `"mises"`. Mode shapes take `component` instead (`|u|` (default), `ux`, `uy`, `uz`). Under `[plots.style]`: `colormap`, `colorbar`, `title`, `outline` (undeformed outline) and `deform_scale` (largest displacement as a fraction of the model size).
 
@@ -529,7 +533,7 @@ Field plots (`kind = "field"`) show `quantity` on the structure (field results; 
 | `bands` | `6` | `surfaces`: how many bands are drawn from `band` up (0 = all) |
 | `ky_min`, `ky_max` | `""` | `kmap`, `surfaces`: range of the ky axis (`x_min`, `x_max` give the kx range) |
 | `spectrum` | `"dos"` | `spectrum`: `dos`, `velocity` or `flux` |
-| `bins` | `200` | `spectrum`, `conductance`: how many frequencies the curve or its integral is sampled at |
+| `bins` | `200` | `spectrum`: how many frequencies the curve is sampled at |
 | `show_incomplete` | `false` | `spectrum`, `conductance`: carry past the frequency where the bands stop being complete, marking it |
 | `temperature` | `"1[K]"` | `spectrum`, `flux`: temperature of the radiating boundary |
 | `transport` | `"conductance"` | `conductance`: `conductance` (G = dP/dT) or `power` (P) |

@@ -9,6 +9,8 @@ Steady heat conduction along a silicon bar held at two temperatures, with insula
 
 **The model.**
 
+<figure><img src="../.gitbook/assets/heated-bar.jpg" alt="The heated bar in SolidOcean: the temperature field on the silicon bar for T_hot = 305 K and the temperature profiles along the bar for every value of the T_hot sweep"><figcaption><p>Temperature field on the bar and the linear profiles along it for each value of T_hot</p></figcaption></figure>
+
 {% code title="heat_bar.toml (abridged)" %}
 ```toml
 [project]

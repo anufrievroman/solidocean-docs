@@ -17,7 +17,7 @@ $$
 
 with the full anisotropic stiffness **C** (Voigt notation, order xx yy zz yz xz xy). Discretising gives the stiffness matrix K and the mass matrix M, from which the three problem types follow:
 
-<table data-header-hidden><thead><tr><th width="210.796875"></th><th></th></tr></thead><tbody><tr><td><code>type</code> in <code>[solid.problem]</code></td><td>Problem solved</td></tr><tr><td><code>eigenfrequency</code></td><td>K u = ω² M u — modes, eigenfrequencies, phonon dispersion</td></tr><tr><td><code>stationary</code></td><td>K u = f — displacement, strain and stress under loads</td></tr><tr><td><code>frequency</code></td><td>(K(1 + iη) − ω² M) û = f̂ — the driven harmonic response</td></tr></tbody></table>
+<table data-header-hidden><thead><tr><th width="210.796875"></th><th></th></tr></thead><tbody><tr><td><code>type</code> in <code>[solid.problem]</code></td><td>Problem solved</td></tr><tr><td><code>eigenfrequency</code></td><td>K u = ω² M u — modes, eigenfrequencies, phonon dispersion</td></tr><tr><td><code>stationary</code></td><td>K u = f — displacement, strain and stress under loads</td></tr><tr><td><code>frequency</code></td><td>(K(1 + iη) − ω² M) û = f̂ — the driven harmonic response</td></tr><tr><td><code>conductance</code></td><td>K(k) u = ω² M(k) u over a mesh of the Brillouin zone — coherent heat conduction</td></tr></tbody></table>
 
 Each node carries three unknowns, numbered node-major (`dof = 3·node + component`). Faces without a condition are **traction-free**, which is also the correct condition on the free surface of a membrane or a beam.
 
@@ -106,6 +106,120 @@ The points are **reduced coordinates**: fractions of the reciprocal lattice vect
 {% hint style="info" %}
 The lattice shapes the geometry of any physics — the `cell` object is exactly one unit cell — but only solid mechanics imposes periodicity on the solution. Heat transfer does not make T periodic.
 {% endhint %}
+
+## Coherent heat conduction
+
+At low temperature the phonons that carry heat have wavelengths comparable to the features of a nanostructure, and they travel through it without scattering. Heat then flows through the **band structure of the structure itself**: a periodic pattern that folds and flattens the bands changes the density of states and slows the group velocities, and with them the thermal conductance. `type = "conductance"` computes this ballistic (coherent) conduction of a periodic membrane.
+
+```toml
+[solid.problem]
+type = "conductance"
+num_eigs = 40
+
+[solid.problem.kmesh]
+n = 12                   # divisions along each edge of the meshed region
+region = "irreducible"   # or "full", the whole Brillouin zone
+```
+
+Unlike a dispersion, the integrals that give a conductance run over the **whole** Brillouin zone, not along its symmetry directions. The eigenproblem K(k) u = ω² M(k) u of an eigenfrequency problem is therefore solved at every point of a triangular mesh of the zone, and each band becomes a surface ω<sub>j</sub>(**k**) over it. K and M are assembled once; only the Bloch reduction T(k) changes from point to point. Band *j* is the *j*-th lowest frequency at each wavevector, so bands are not followed through their crossings.
+
+The mesh covers either the whole zone or its irreducible wedge (Γ–X–M for a square lattice, Γ–M–K for a hexagonal one). A wedge is multiplied by the number *S* of copies that fill the zone (8 for a square lattice, 12 for a hexagonal one, 1 for the whole zone), which assumes that the contents of the cell have the point symmetry of the lattice. For a tilted or off-centre inclusion, mesh the whole zone.
+
+### Density of states and group velocity
+
+For a membrane the zone is two-dimensional, and the density of states per unit area is a sum over bands of an integral over the zone. The group velocity is the gradient of the band:
+
+$$
+D(\omega) = \sum_j \int_\mathrm{BZ} \frac{\mathrm{d}^2k}{(2\pi)^2}\,\delta\big(\omega - \omega_j(\mathbf{k})\big)
+= \frac{1}{4\pi^2}\sum_j \oint_{\omega_j(\mathbf{k}) = \omega} \frac{\mathrm{d}\ell}{|\nabla_\mathbf{k}\omega_j|},
+\qquad \mathbf{v}_j = \nabla_\mathbf{k}\omega_j
+$$
+
+The second form follows from the change of variable d²k = dℓ dω / |∇<sub>k</sub>ω|: the states at frequency ω lie on the iso-frequency contour of each band, and each element of that contour counts inversely to how steep the band is there.
+
+### Heat flux and conductance
+
+A boundary at temperature T emits phonons into the structure, each mode carrying the energy ħω with the Bose-Einstein occupation
+
+$$
+n(\omega, T) = \frac{1}{e^{\hbar\omega/k_\mathrm{B}T} - 1}.
+$$
+
+The power a heater with boundary γ radiates into a phononic crystal membrane sums every state of the zone that moves away from the boundary, at the speed it leaves it [1]:
+
+$$
+P(T) = \frac{1}{(2\pi)^2}\sum_j \oint_\gamma \mathrm{d}\gamma \int_\mathrm{BZ} \mathrm{d}^2k\;
+\hbar\omega_j\, n(\omega_j, T)\,(\mathbf{v}_j\cdot\hat{\mathbf{n}}_\gamma)\,\Theta(\mathbf{v}_j\cdot\hat{\mathbf{n}}_\gamma),
+\qquad \mathbf{v}_j = \nabla_\mathbf{k}\omega_j
+$$
+
+with **n̂**<sub>γ</sub> the outward normal of the boundary and Θ the step function. This is the ballistic, or Landauer, picture of an unpatterned membrane [2, 3], with the band structure of the crystal in place of the Rayleigh-Lamb branches. SolidOcean reports it per unit length of a convex boundary, whose normals take every direction. Averaged over those directions, the outgoing velocity is ⟨(**v**·**n̂**) Θ(**v**·**n̂**)⟩ = |**v**|/π, so
+
+$$
+P(T) = \sum_j \int_\mathrm{BZ} \frac{\mathrm{d}^2k}{(2\pi)^2}\,\hbar\omega_j\,n(\omega_j, T)\,\frac{|\nabla_\mathbf{k}\omega_j|}{\pi}
+$$
+
+in W/m, and the ballistic thermal conductance per unit length of the boundary, in W K⁻¹ m⁻¹, is its derivative:
+
+$$
+G(T) = \frac{\mathrm{d}P}{\mathrm{d}T} = \sum_j \int_\mathrm{BZ} \frac{\mathrm{d}^2k}{(2\pi)^2}\,\hbar\omega_j\,\frac{\partial n(\omega_j, T)}{\partial T}\,\frac{|\nabla_\mathbf{k}\omega_j|}{\pi}.
+$$
+
+The direction average is also what makes a mesh of the irreducible wedge sufficient: the flux in one fixed direction is not symmetric under the point group of the lattice, but its average over directions is.
+
+**The spectral heat flux.** Changing variable from **k** to ω as for the density of states, d²k = dℓ dω / |∇<sub>k</sub>ω|, the group velocity cancels the Jacobian and only the length of the iso-frequency contour is left:
+
+$$
+P(T) = \int_0^\infty p(\omega, T)\,\mathrm{d}\omega,\qquad
+p(\omega, T) = \frac{\hbar\omega\,n(\omega, T)}{4\pi^3}\,L(\omega),\qquad
+L(\omega) = \sum_j \oint_{\omega_j(\mathbf{k}) = \omega} \mathrm{d}\ell
+$$
+
+p is what the `flux` spectrum shows: which frequencies carry the heat. As a check, a single linear branch ω = vk gives the 2D law P = 4ζ(3)k<sub>B</sub>³T³/(vh²), with G ∝ T². In an unpatterned plate at the lowest temperatures, only the flexural branch ω ∝ k² is occupied, and P ∝ T⁵ᐟ².
+
+### Discretisation
+
+Over each triangle *m* of the mesh, band *j* is taken as the plane through its three corner frequencies, so the gradient ∇<sub>k</sub>ω<sub>jm</sub> is constant inside it. This linear interpolation of the bands is the 2D analogue of the linear tetrahedron method for densities of states [4, 5].
+
+**Spectra.** The level set ω<sub>j</sub> = ω inside a triangle is a straight segment of length L<sub>jm</sub>(ω), so the contour integrals become sums over the (band, triangle) pairs that the level crosses:
+
+$$
+D(\omega) = \frac{S}{4\pi^2}\sum_{j,m} \frac{L_{jm}(\omega)}{|\nabla_\mathbf{k}\omega_{jm}|},\qquad
+\langle v\rangle(\omega) = \frac{\sum_{j,m} L_{jm}}{\sum_{j,m} L_{jm}/|\nabla_\mathbf{k}\omega_{jm}|},\qquad
+p(\omega, T) = \frac{S\,\hbar\omega\, n(\omega, T)}{4\pi^3}\sum_{j,m} L_{jm}(\omega)
+$$
+
+⟨v⟩ is the group velocity averaged over the states at that frequency, weighted as the density of states weights them, not over the wavevectors. The spectra are sampled at `bins` frequencies.
+
+**Power and conductance** are integrated over the zone, as in [1], not over frequency. Each triangle is divided into 64 equal ones, and the integrand is sampled at their centroids with the interpolated frequency:
+
+$$
+P(T) = \frac{S}{4\pi^3}\sum_{j,m} |\nabla_\mathbf{k}\omega_{jm}|\,\frac{A_m}{64}\sum_{q=1}^{64} \hbar\omega_{jmq}\, n(\omega_{jmq}, T)
+$$
+
+with A<sub>m</sub> the area of the triangle. Samples above the complete range (below) are left out. They do not depend on the temperature, so they are gathered once and every point of a curve is a sum over them. Integrating the spectral flux p over frequency gives the same P; with the same planar bands, the two agree to 10⁻⁴ once both are finely sampled. At very low temperatures, the frequency route needs many more samples, because few of them fall among the occupied frequencies.
+
+The equations are written for ω, as the literature has them; the plots and CSV files use the frequency f = ω/2π, so a density per unit f is 2π times the one per unit ω.
+
+{% hint style="warning" %}
+**Where the bands stop being complete.** A run computes `num_eigs` bands at every wavevector, so every state is accounted for only below the *lowest* value the topmost band takes over the zone. Above it the spectra sag towards zero, which looks like a physical cut-off and is not; plots stop there unless `show_incomplete = true`. The conductance at T needs complete bands up to roughly 9 k<sub>B</sub>T/h (about 19 GHz at 0.1 K), and below that it is a lower bound. Bands are also not sorted through their crossings, which makes group velocities read low where surfaces cross; sorting them removes the error, which matters above about 100 mK [1, 6].
+{% endhint %}
+
+The plots that read a wavevector mesh are `kmap` (one band over the zone), `surfaces` (several bands in 3D), `spectrum` (D, ⟨v⟩ or p against frequency) and `conductance` (P or G against temperature); their keys are in the [model file reference](../model-file.md).
+
+**References**
+
+\[1] N. Zen, T. A. Puurtinen, T. J. Isotalo, S. Chaudhuri and I. J. Maasilta, Engineering thermal conductance using a two-dimensional phononic crystal, *Nat. Commun.* **5**, 3435 (2014), Eq. (1) and Methods.
+
+\[2] T. Kühn and I. J. Maasilta, Ballistic phonon transport in dielectric membranes, *Nucl. Instrum. Methods Phys. Res. A* **559**, 724 (2006).
+
+\[3] T. Kühn and I. J. Maasilta, Maximizing phonon thermal conductance for ballistic membranes, *J. Phys.: Conf. Ser.* **92**, 012082 (2007).
+
+\[4] G. Lehmann and M. Taut, On the numerical calculation of the density of states and related properties, *Phys. Status Solidi B* **54**, 469 (1972).
+
+\[5] P. E. Blöchl, O. Jepsen and O. K. Andersen, Improved tetrahedron method for Brillouin-zone integrations, *Phys. Rev. B* **49**, 16223 (1994).
+
+\[6] T. A. Puurtinen and I. J. Maasilta, On calculating the radiated ballistic phonon power in phononic crystal membranes, *AIP Conf. Proc.* **1506**, 9 (2012).
 
 ## Stationary problems
 

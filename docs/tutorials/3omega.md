@@ -49,6 +49,8 @@ x_log = true
 
 The model is a thin slice of the line with its cut faces insulated, which makes the line infinitely long, and half of the line by symmetry (an insulated face is a mirror plane for heat). The far faces are held at the ambient temperature, more than five thermal penetration depths √(α/ω) away at the lowest frequency.
 
+<figure><img src="../.gitbook/assets/3omega.jpg" alt="The 3ω model in SolidOcean: the temperature amplitude at 10 kHz on the half-line slice of the substrate, peaking under the heater, and the in-phase heater temperature against frequency"><figcaption><p>Temperature amplitude at 10 kHz around the heater and the in-phase heater temperature over the frequency sweep</p></figcaption></figure>
+
 Four fields are available for a frequency-domain solution: `Tamp` and `Tphase` (amplitude and phase, the phase in degrees and negative when the temperature lags the drive), and `Tre` and `Tim` (the in-phase and out-of-phase parts). Reductions work on them as usual, so `mean(Tre, "Heater")` is the in-phase average over the gold line, exactly what a 3ω measurement reads.
 
 **Run it and fit the slope.**
