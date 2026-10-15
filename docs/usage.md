@@ -18,6 +18,8 @@ solidocean
 This should launch the graphical inteface (it can be slow the very first time):
 
 <figure><img src=".gitbook/assets/screenshot.jpg" alt="The SolidOcean interface: the model tree, the wavevector sweep settings and the mesh of a silicon unit cell with an aluminium pillar"><figcaption><p>Graphical interface of SolidOcean</p></figcaption></figure>
+
+The structure and the plots share the right-hand pane. The buttons above it put one in front of the other, or show both side by side or one above the other; the handle between them starts in the middle and can be dragged. The choice lasts for the session and is not part of the model.
 {% endtab %}
 
 {% tab title="Command line" %}
