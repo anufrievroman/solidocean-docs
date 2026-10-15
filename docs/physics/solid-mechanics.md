@@ -120,8 +120,9 @@ Loads are applied as `area` (force per area, Pa), `total` (a force in newtons sp
 The harmonic response to oscillating loads and prescribed displacements:
 
 $$
-\left(\mathbf{K} + i\mathbf{K}_\mathrm{loss} - \omega^2\mathbf{M}\right)\hat{\mathbf{u}} = \hat{\mathbf{f}},
-\qquad \mathbf{K}_\mathrm{loss} = \sum_e \eta_e\,\mathbf{K}_e
+\left(\mathbf{K} + i\mathbf{K}_\mathrm{loss} + i\omega\mathbf{C} - \omega^2\mathbf{M}\right)\hat{\mathbf{u}} = \hat{\mathbf{f}},
+\qquad \mathbf{K}_\mathrm{loss} = \sum_e \eta_e\,\mathbf{K}_e,
+\qquad \mathbf{C} = \alpha\mathbf{M} + \beta\mathbf{K}
 $$
 
 solved for every value of the sweep. The loads and prescribed displacements are the complex amplitudes of the drive, u(t) = Re(û exp(iωt)); fixed constraints and symmetry planes hold as usual, and the structure need **not** be held in place — the inertia term does that.
@@ -131,9 +132,26 @@ solved for every value of the sweep. The loads and prescribed displacements are 
 type = "frequency"
 frequency = "f"
 loss = "0.02"            # loss factor of every material, added to each material's eta
+rayleigh_alpha = "0"     # Rayleigh damping, mass-proportional part (1/s)
+rayleigh_beta = "0"      # Rayleigh damping, stiffness-proportional part (s)
 ```
 
 The loss factor η is hysteretic damping (stiffness C(1 + iη)), giving a resonance a quality factor of 1/η. Because a material's own `eta` may depend on position, a loss that grows smoothly over a few wavelengths at the end of a long structure acts as an **absorbing region**: it takes the waves out without reflecting them, so transmission through a finite section can be computed as if the structure continued.
+
+**Rayleigh damping** C = αM + βK is viscous damping instead: a force proportional to velocity, with a mass-proportional part α (a drag on the motion itself) and a stiffness-proportional part β (a drag on the rate of strain). Every mode keeps its shape and gets the damping ratio
+
+$$
+\zeta(\omega) = \frac{\alpha}{2\omega} + \frac{\beta\omega}{2}, \qquad Q \approx \frac{1}{2\zeta},
+$$
+
+which falls with frequency through α and rises through β, where a loss factor gives the same ζ = η/2 at every frequency. Rayleigh damping is a way of fitting a measured damping over a band, not a mechanism: two measured damping ratios ζ₁ and ζ₂ at ω₁ and ω₂ fix
+
+$$
+\alpha = \frac{2\omega_1\omega_2(\zeta_1\omega_2 - \zeta_2\omega_1)}{\omega_2^2 - \omega_1^2}, \qquad
+\beta = \frac{2(\zeta_2\omega_2 - \zeta_1\omega_1)}{\omega_2^2 - \omega_1^2},
+$$
+
+and between them ζ stays close to the measured values. The loss factors and Rayleigh damping add, and either one keeps the system solvable at an eigenfrequency.
 
 Fields are complex in this problem: `abs(uz)` is an amplitude, `real()`, `imag()` and `angle()` the parts and the phase, and the default field view is the amplitude √(|uₓ|² + |u\_y|² + |u\_z|²).
 
