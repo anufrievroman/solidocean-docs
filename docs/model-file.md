@@ -61,7 +61,7 @@ The preferred units only change how values are shown: inputs accept any unit (`5
 | key | meaning |
 |---|---|
 | `name` | referenced by objects |
-| `library` | optional: start from a library material: `"Si"`, `"Diamond"`, `"Ge"`, `"GaAs"`, `"3C-SiC"` (cubic), `"4H-SiC"` (hexagonal, c-axis along z), `"Al"`, `"Au"`, `"Cr"`, `"Pd"` (isotropic, polycrystalline; bulk values: thin films are often softer and conduct less, e.g. Au 317 W/(m·K) in bulk), `"SiO2"` (fused silica, isotropic), `"LiNbO3"` (lithium niobate, trigonal: anisotropic stiffness and conductivity, c-axis along z, x along an a-axis; elastic constants at constant electric field, piezoelectricity not included). Any property given explicitly overrides the library value |
+| `library` | optional: start from a library material: `"Si"`, `"Diamond"`, `"Ge"`, `"GaAs"`, `"3C-SiC"` (cubic), `"4H-SiC"` (hexagonal, c-axis along z), `"Al"`, `"Au"`, `"Cr"`, `"Pd"` (isotropic, polycrystalline; bulk values: thin films are often softer and conduct less, e.g. Au 317 W/(m·K) in bulk), `"SiO2"` (fused silica, isotropic), `"SiN"` (amorphous silicon nitride, isotropic; low-stress film values, with the conductivity of a film rather than of bulk Si₃N₄), `"LiNbO3"` (lithium niobate, trigonal: anisotropic stiffness and conductivity, c-axis along z, x along an a-axis; elastic constants at constant electric field, piezoelectricity not included). Any property given explicitly overrides the library value |
 | `model` | `isotropic` (`rho`, `E`, `nu`), `cubic` (`rho`, `C11`, `C12`, `C44`), `hexagonal` (`rho`, `C11`, `C12`, `C13`, `C33`, `C44`; c-axis = z), `anisotropic` (`rho`, `C11`..`C66`, Voigt) |
 | `k` | thermal conductivity, isotropic, e.g. `"148[W/(m*K)]"` (heat transfer only) |
 | `kxx`, `kyy`, `kzz` | anisotropic thermal conductivity in the crystal frame, instead of `k`; rotated with `rotation_deg` |
@@ -223,10 +223,10 @@ load = ["0", "0", "-1[nN]"]
 
 | key | default | meaning |
 |---|---|---|
-| `type` | `"eigenfrequency"` | `eigenfrequency` (modes, dispersion), `stationary` (displacement, strain and stress under loads and prescribed displacements) or `frequency` (harmonic response to oscillating loads and displacements, see below) |
+| `type` | `"eigenfrequency"` | `eigenfrequency` (modes, dispersion), `stationary` (displacement, strain and stress under loads and prescribed displacements), `frequency` (harmonic response to oscillating loads and displacements, see below) or `conductance` (coherent heat conduction: the eigenproblem over a mesh of the Brillouin zone, see below) |
 | `frequency` | `"f"` | frequency domain: the drive frequency, usually a variable swept with `[problem.sweep]` |
 | `loss` | `"0"` | frequency domain: loss factor η of every material (added to a material's own `eta`) |
-| `num_eigs` | `12` | eigenfrequency: eigenfrequencies per solve |
+| `num_eigs` | `12` | eigenfrequency and coherent heat conduction: eigenfrequencies per solve |
 | `search_freq` | `"0[GHz]"` | eigenfrequency: find the eigenfrequencies nearest this frequency (units allowed, e.g. `"5[GHz]"`) |
 | `k` | `["0", "0", "0"]` | eigenfrequency: Bloch wave vector `[kx, ky, kz]` in rad/m, used when there is no k-path |
 | `tol` | `0` | eigenfrequency: relative eigenvalue tolerance (0 = machine precision) |
@@ -235,6 +235,8 @@ load = ["0", "0", "-1[nN]"]
 An eigenfrequency problem solves at every point of the k-path (inner loop) for every variable value (outer loop); with neither sweep, a single solve at `k`. Sweeping a variable used in `k` (e.g. `kx`) gives a dispersion without a k-path. Results: `dispersion.csv` and `results.npz` (see `[output]`).
 
 A stationary problem solves K u = f once per value of the variable sweep (the k-path is not used). The model must be held against rigid-body motion by fixed constraints, prescribed displacements or symmetry planes; otherwise the run stops with an error. A periodic model gets the periodic solution (wavevector 0). Results: `quantities.csv` (every plotted quantity per variable value) and `displacement.npz` (nodal displacements and the mesh, SI); see `[output]`.
+
+A coherent heat conduction problem solves the eigenproblem of an eigenfrequency problem at every point of a triangular mesh of the Brillouin zone (`[solid.problem.kmesh]`) rather than along a path, so each band becomes a surface ω(k) over the zone: the input a ballistic (coherent) thermal conductance needs, since the integral runs over the whole zone and not along its symmetry directions. Band *j* is the *j*-th lowest frequency at each wavevector, so bands are not followed through their crossings; the frequencies and the connectivity of the mesh are saved (`results.npz`) for the spectral quantities computed from them. Results: `dispersion.csv` (one row per wavevector) and `results.npz`.
 
 A frequency-domain problem solves (K (1 + iη) − ω² M) û = f̂ for every value of the variable sweep: the loads and prescribed displacements are the complex amplitudes of the drive (u(t) = Re(û e^{iωt})); fixed constraints and symmetry planes hold as usual, and the structure need not be held in place. The loss factor η (hysteretic damping: stiffness C (1 + iη)) is the problem's `loss` plus each material's `eta`; `eta` may depend on x, y, z (evaluated per element), which makes absorbing regions: a loss growing smoothly over a few wavelengths at the ends of a long structure takes the waves out without reflecting them. Fields `ux`, `uy`, `uz`, strains and stresses are complex: `abs(uz)` is an amplitude, `real()`, `imag()`, `angle()` the parts and phase; the default field view is the amplitude `sqrt(abs(ux)^2 + abs(uy)^2 + abs(uz)^2)`. Example: the template `driven_beam` (waves through a phononic section of a beam, transmission against frequency).
 
@@ -248,6 +250,18 @@ A frequency-domain problem solves (K (1 + iη) − ω² M) û = f̂ for every va
 | `path` | `["G", "X", "M", "G"]` |
 | `n` | points per segment |
 | `enabled` | `false` keeps the path in the file without running it |
+
+### Wavevector mesh
+
+`[solid.problem.kmesh]`, needed by a coherent heat conduction problem: the mesh of the Brillouin zone the bands are computed on.
+
+| key | default | meaning |
+|---|---|---|
+| `n` | `12` | divisions along each edge of the region; a triangular wedge then holds (n + 1)(n + 2) / 2 wavevectors and n² triangles |
+| `region` | `"irreducible"` | `irreducible` (the standard wedge: Γ–X–M of a square lattice, Γ–X–S–Y of a rectangular one, Γ–M–K of a hexagonal one) or `full` (the whole first zone) |
+| `enabled` | `true` | `false` keeps the mesh in the file without running it |
+
+The mesh needs a lattice periodic in exactly two directions. Meshing the irreducible wedge assumes the contents of the unit cell share the point symmetry of the lattice — true for an empty cell or a hole centred in it, not for a tilted or off-centre inclusion, which needs `region = "full"`. One eigenvalue solve runs per wavevector and per value of the variable sweep, so the cost grows as n²: the wedge of a square lattice holds 91 wavevectors at n = 12 and 6441 at n = 112.
 
 ## Selections
 
