@@ -70,11 +70,7 @@ kx [rad/m],ky [rad/m],kz [rad/m],k path [rad/m],f1 [GHz],f2 [GHz],…
 628318.5307,0,0,628318.5307,0.03098144317,0.5846174706,0.7781482082,…
 ```
 
-**Comparison with the exact plate modes.** The guided waves of a free plate are known exactly: the Lamb waves, with the displacement in the plane of propagation, and the shear-horizontal waves, polarised across it. Silicon is cubic rather than isotropic, so the classical Rayleigh-Lamb equations do not apply as they are. For waves along \[100] in a (001) plate, the exact modes follow from the same partial-wave conditions with C11, C12 and C44 \[1, 2], solved here to machine precision through the thickness. Every computed eigenfrequency lies on an exact branch, with a median error of 0.02 % and at most 0.19 %:
-
-<figure><img src="../.gitbook/assets/membrane-lamb-modes.png" alt="Dispersion of the 220 nm silicon membrane along [100]: exact guided plate modes as grey lines and the eigenfrequencies computed by SolidOcean as circles, which lie on the lines" width="563"><figcaption><p>Exact guided modes of the plate (lines) and the eigenfrequencies of the template (circles). The line rising above 53 GHz is the 13th mode, above the 12 the template computes.</p></figcaption></figure>
-
-The [validation report](../validation/report.md) makes the same comparison for an isotropic plate, against the Rayleigh-Lamb equations, with the convergence of the error as the mesh is refined.
+These branches are the guided waves of a free plate. The [validation report](../validation/report.md) compares the same kind of model, for an isotropic plate, with the exact Rayleigh-Lamb and shear-horizontal modes, including how the error converges as the mesh is refined.
 
 **In the interface**, the dispersion plot shows the branches with the Γ and K ticks; clicking a point shows and animates that mode shape. The template's second plot colours every point by
 
@@ -89,9 +85,3 @@ the out-of-plane fraction of the mode. Mode shapes are normalised so that `mean(
 * Make the membrane thinner or thicker with `t`: the thickness resonances move as 1/t, while the slopes of the in-plane branches at Γ stay the same.
 * Rotate the crystal with `rotation_deg = ["0", "0", "45"]` on the material to send the waves along \[110] instead; the in-plane velocities change, because silicon is anisotropic.
 * Perforate the membrane: the `square` template adds a lattice of holes to the cell, and the period becomes a real length of the structure, with band gaps between the branches.
-
-**References**
-
-\[1] B. A. Auld, _Acoustic Fields and Waves in Solids_, Vol. II, 2nd ed. (Krieger, 1990).
-
-\[2] J. L. Rose, _Ultrasonic Guided Waves in Solid Media_ (Cambridge University Press, 2014).

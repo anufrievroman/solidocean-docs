@@ -153,7 +153,7 @@ P(T) = \frac{1}{(2\pi)^2}\sum_j \oint_\gamma \mathrm{d}\gamma \int_\mathrm{BZ} \
 \qquad \mathbf{v}_j = \nabla_\mathbf{k}\omega_j
 $$
 
-with **n̂**<sub>γ</sub> the outward normal of the boundary and Θ the step function. This is the ballistic, or Landauer, picture of an unpatterned membrane [2, 3], with the band structure of the crystal in place of the Rayleigh-Lamb branches. SolidOcean reports it per unit length of a convex boundary, whose normals take every direction. Averaged over those directions, the outgoing velocity is ⟨(**v**·**n̂**) Θ(**v**·**n̂**)⟩ = |**v**|/π, so
+with **n̂**<sub>γ</sub> the outward normal of the boundary and Θ the step function. This is the ballistic picture of an unpatterned membrane [2], with the band structure of the crystal in place of the membrane's Lamb modes. SolidOcean reports it per unit length of a convex boundary, whose normals take every direction. Averaged over those directions, the outgoing velocity is ⟨(**v**·**n̂**) Θ(**v**·**n̂**)⟩ = |**v**|/π, so
 
 $$
 P(T) = \sum_j \int_\mathrm{BZ} \frac{\mathrm{d}^2k}{(2\pi)^2}\,\hbar\omega_j\,n(\omega_j, T)\,\frac{|\nabla_\mathbf{k}\omega_j|}{\pi}
@@ -175,11 +175,11 @@ p(\omega, T) = \frac{\hbar\omega\,n(\omega, T)}{4\pi^3}\,L(\omega),\qquad
 L(\omega) = \sum_j \oint_{\omega_j(\mathbf{k}) = \omega} \mathrm{d}\ell
 $$
 
-p is what the `flux` spectrum shows: which frequencies carry the heat. As a check, a single linear branch ω = vk gives the 2D law P = 4ζ(3)k<sub>B</sub>³T³/(vh²), with G ∝ T². In an unpatterned plate at the lowest temperatures, only the flexural branch ω ∝ k² is occupied, and P ∝ T⁵ᐟ².
+p is what the `flux` spectrum shows: which frequencies carry the heat. As a check, a single linear branch ω = vk gives the 2D law P = 4ζ(3)k<sub>B</sub>³T³/(vh²), with G ∝ T². In an unpatterned membrane at the lowest temperatures, the in-plane branches add such T³ terms, and the flexural branch ω ∝ k² adds one in T⁵ᐟ² [2].
 
 ### Discretisation
 
-Over each triangle *m* of the mesh, band *j* is taken as the plane through its three corner frequencies, so the gradient ∇<sub>k</sub>ω<sub>jm</sub> is constant inside it. This linear interpolation of the bands is the 2D analogue of the linear tetrahedron method for densities of states [4, 5].
+Over each triangle *m* of the mesh, band *j* is taken as the plane through its three corner frequencies, so the gradient ∇<sub>k</sub>ω<sub>jm</sub> is constant inside it. This linear interpolation of the bands is the 2D analogue of the linear tetrahedron method for densities of states.
 
 **Spectra.** The level set ω<sub>j</sub> = ω inside a triangle is a straight segment of length L<sub>jm</sub>(ω), so the contour integrals become sums over the (band, triangle) pairs that the level crosses:
 
@@ -202,24 +202,16 @@ with A<sub>m</sub> the area of the triangle. Samples above the complete range (b
 The equations are written for ω, as the literature has them; the plots and CSV files use the frequency f = ω/2π, so a density per unit f is 2π times the one per unit ω.
 
 {% hint style="warning" %}
-**Where the bands stop being complete.** A run computes `num_eigs` bands at every wavevector, so every state is accounted for only below the *lowest* value the topmost band takes over the zone. Above it the spectra sag towards zero, which looks like a physical cut-off and is not; plots stop there unless `show_incomplete = true`. The conductance at T needs complete bands up to roughly 9 k<sub>B</sub>T/h (about 19 GHz at 0.1 K), and below that it is a lower bound. Bands are also not sorted through their crossings, which makes group velocities read low where surfaces cross; sorting them removes the error, which matters above about 100 mK [1, 6].
+**Where the bands stop being complete.** A run computes `num_eigs` bands at every wavevector, so every state is accounted for only below the *lowest* value the topmost band takes over the zone. Above it the spectra sag towards zero, which looks like a physical cut-off and is not; plots stop there unless `show_incomplete = true`. The conductance at T needs complete bands up to roughly 9 k<sub>B</sub>T/h (about 19 GHz at 0.1 K), and below that it is a lower bound. Bands are also not sorted through their crossings, which makes group velocities read low where surfaces cross; sorting them removes the error, which matters above about 100 mK [1].
 {% endhint %}
 
 The plots that read a wavevector mesh are `kmap` (one band over the zone), `surfaces` (several bands in 3D), `spectrum` (D, ⟨v⟩ or p against frequency) and `conductance` (P or G against temperature); their keys are in the [model file reference](../model-file.md).
 
 **References**
 
-\[1] N. Zen, T. A. Puurtinen, T. J. Isotalo, S. Chaudhuri and I. J. Maasilta, Engineering thermal conductance using a two-dimensional phononic crystal, *Nat. Commun.* **5**, 3435 (2014), Eq. (1) and Methods.
+\[1] N. Zen, T. A. Puurtinen, T. J. Isotalo, S. Chaudhuri and I. J. Maasilta, Engineering thermal conductance using a two-dimensional phononic crystal, *Nat. Commun.* **5**, 3435 (2014).
 
 \[2] T. Kühn and I. J. Maasilta, Ballistic phonon transport in dielectric membranes, *Nucl. Instrum. Methods Phys. Res. A* **559**, 724 (2006).
-
-\[3] T. Kühn and I. J. Maasilta, Maximizing phonon thermal conductance for ballistic membranes, *J. Phys.: Conf. Ser.* **92**, 012082 (2007).
-
-\[4] G. Lehmann and M. Taut, On the numerical calculation of the density of states and related properties, *Phys. Status Solidi B* **54**, 469 (1972).
-
-\[5] P. E. Blöchl, O. Jepsen and O. K. Andersen, Improved tetrahedron method for Brillouin-zone integrations, *Phys. Rev. B* **49**, 16223 (1994).
-
-\[6] T. A. Puurtinen and I. J. Maasilta, On calculating the radiated ballistic phonon power in phononic crystal membranes, *AIP Conf. Proc.* **1506**, 9 (2012).
 
 ## Stationary problems
 
