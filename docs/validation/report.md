@@ -31,10 +31,10 @@ and the shear-horizontal modes $$\omega^2 = c_T^2\,(k^2 + (n\pi/t)^2)$$, solved 
 
 The same free plate as the Lamb case, but asked a different question: not where the branches lie, but how many states each frequency carries. An unpatterned membrane is given an artificial square cell of side $$ a = 0.4\,t $$, its bands are computed over a mesh of the irreducible wedge of that cell's Brillouin zone, and the spectra are summed from the wedge (physics/solid/spectra.py).
 
-The reference needs no mesh. The plate is isotropic, so its exact dispersion is radially symmetric: every Rayleigh-Lamb and shear-horizontal branch $$ \omega_j(k) $$, rotated about the origin, is a surface whose iso-frequency contour is a circle of circumference $$ 2\pi k_j(\omega) $$. Summing those circles gives
+The reference needs no mesh. The plate is isotropic, so its exact dispersion is radially symmetric: every Rayleigh-Lamb and shear-horizontal branch $$ \omega_j(k) $$, rotated about the origin, is a surface whose iso-frequency contour is a circle of circumference $$ 2\pi k_j(\omega) $$. Summing those circles gives, per unit angular frequency,
 
 $$
-D(f) = \frac{1}{(2\pi)^2}\sum_j \frac{2\pi k_j}{|\mathrm{d}f/\mathrm{d}k|_j},\qquad \langle v\rangle(f) = 2\pi\frac{\sum_j k_j}{\sum_j k_j/|\mathrm{d}f/\mathrm{d}k|_j},
+D(\omega) = \frac{1}{(2\pi)^2}\sum_j \frac{2\pi k_j}{|\mathrm{d}\omega/\mathrm{d}k|_j},\qquad \langle v\rangle(\omega) = \frac{\sum_j k_j}{\sum_j k_j/|\mathrm{d}\omega/\mathrm{d}k|_j},
 $$
 
 evaluated on a dense grid of the exact branches. The two routes share nothing: one is a finite-element eigenproblem sampled over a two-dimensional zone of an invented cell, the other a one-dimensional analytic dispersion rotated in k-space. They must still agree, because the artificial cell only folds the states into its zone and folding moves no state. The comparison runs to $$ \omega t / c_\mathrm{T} = 10 $$, which is below the frequency where the sixteen computed bands stop being complete — the lowest value the topmost of them takes over the zone, not the highest frequency any of them reaches.
@@ -47,7 +47,7 @@ What is left over is the price of sampling. Bands are numbered by ascending freq
 
 Wavevectors 15 / 45 / 91: the density of states differs from the exact one by 10.3 %, 6.5 %, 5.3 %, the group velocity by 12.4 %, 8.7 %, 6.9 %. Over the same window the states below it carry 4.04e-07 W/(K m) at 0.1 K, against 4.57e-07 W/(K m) exactly (-12 %).
 
-**Checks:** ✅ ballistic conductance at 0.1 K: 1.16e-01 (≤ 1.50e-01); ✅ density of states, finest mesh: 5.25e-02 (≤ 8.00e-02); ✅ average group velocity, finest mesh: 6.92e-02 (≤ 1.20e-01); ✅ density of states improves with the mesh: 5.11e-01 (≤ 8.00e-01); ✅ group velocity improves with the mesh: 5.59e-01 (≤ 8.00e-01). Run time 67 s.
+**Checks:** ✅ ballistic conductance at 0.1 K: 1.16e-01 (≤ 1.50e-01); ✅ density of states, finest mesh: 5.25e-02 (≤ 8.00e-02); ✅ average group velocity, finest mesh: 6.92e-02 (≤ 1.20e-01); ✅ density of states improves with the mesh: 5.11e-01 (≤ 8.00e-01); ✅ group velocity improves with the mesh: 5.59e-01 (≤ 8.00e-01). Run time 66 s.
 
 ### Free vibrations of an elastic sphere
 
@@ -163,4 +163,4 @@ The difference at the lowest frequencies comes from the finite model: the far fa
 **Checks:** ✅ phase difference (degrees), every frequency: 0.12 (≤ 0.20); ✅ amplitude difference, every frequency: 5.73e-03 (≤ 1.00e-02). Run time 30 s.
 
 ---
-*SolidOcean 0.1.3; generated 2026-10-15 on Darwin arm64, Python 3.13.16.*
+*SolidOcean 0.2.0; generated 2026-10-15 on Darwin arm64, Python 3.13.16.*
