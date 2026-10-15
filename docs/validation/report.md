@@ -37,7 +37,7 @@ $$
 D(f) = \frac{1}{(2\pi)^2}\sum_j \frac{2\pi k_j}{|\mathrm{d}f/\mathrm{d}k|_j},\qquad \langle v\rangle(f) = 2\pi\frac{\sum_j k_j}{\sum_j k_j/|\mathrm{d}f/\mathrm{d}k|_j},
 $$
 
-evaluated on a dense grid of the exact branches. The two routes share nothing: one is a finite-element eigenproblem sampled over a two-dimensional zone of an invented cell, the other a one-dimensional analytic dispersion rotated in k-space. They must still agree, because the artificial cell only folds the states into its zone and folding moves no state. The comparison runs to $$ \omega t / c_\mathrm{T} = 10 $$, below which every computed band is present.
+evaluated on a dense grid of the exact branches. The two routes share nothing: one is a finite-element eigenproblem sampled over a two-dimensional zone of an invented cell, the other a one-dimensional analytic dispersion rotated in k-space. They must still agree, because the artificial cell only folds the states into its zone and folding moves no state. The comparison runs to $$ \omega t / c_\mathrm{T} = 10 $$, which is below the frequency where the sixteen computed bands stop being complete — the lowest value the topmost of them takes over the zone, not the highest frequency any of them reaches.
 
 What is left over is the price of sampling. Bands are numbered by ascending frequency at each wavevector, so where two branches cross, the surfaces kink; a mesh of flat triangles cuts those corners and flattens the gradients. The density of states weights each contour by the gradient and feels this only weakly, while the group velocity and everything built on the contour length alone (the heat flux, the conductance) carry a systematic deficit. Both shrink as the wavevector mesh is refined, and both are the argument for sorting the surfaces into branches, which this release does not do. The last check is the quantity those spectra are for: the ballistic conductance at 0.1 K, with both routes integrated over the same window, so that what is compared is the sampling of the zone and not the states left above it.
 
@@ -45,9 +45,9 @@ What is left over is the price of sampling. Bands are numbered by ascending freq
 
 <figure><img src="../images/validation/zone_convergence.png" alt="Both spectra approach the exact ones as the wavevector mesh is refined; the finite-element mesh is unchanged throughout, so what converges here is the sampling of the zone."><figcaption><p>Both spectra approach the exact ones as the wavevector mesh is refined; the finite-element mesh is unchanged throughout, so what converges here is the sampling of the zone.</p></figcaption></figure>
 
-Wavevectors 15 / 45 / 91: the density of states differs from the exact one by 10.3 %, 6.8 %, 6.4 %, the group velocity by 12.4 %, 8.7 %, 7.0 %. Over the same window the states below it carry 4.04e-07 W/(K m) at 0.1 K, against 4.57e-07 W/(K m) exactly (-12 %).
+Wavevectors 15 / 45 / 91: the density of states differs from the exact one by 10.3 %, 6.5 %, 5.3 %, the group velocity by 12.4 %, 8.7 %, 6.9 %. Over the same window the states below it carry 4.04e-07 W/(K m) at 0.1 K, against 4.57e-07 W/(K m) exactly (-12 %).
 
-**Checks:** ✅ ballistic conductance at 0.1 K: 1.16e-01 (≤ 1.50e-01); ✅ density of states, finest mesh: 6.35e-02 (≤ 8.00e-02); ✅ average group velocity, finest mesh: 6.95e-02 (≤ 1.20e-01); ✅ density of states improves with the mesh: 6.19e-01 (≤ 8.00e-01); ✅ group velocity improves with the mesh: 5.61e-01 (≤ 8.00e-01). Run time 75 s.
+**Checks:** ✅ ballistic conductance at 0.1 K: 1.16e-01 (≤ 1.50e-01); ✅ density of states, finest mesh: 5.25e-02 (≤ 8.00e-02); ✅ average group velocity, finest mesh: 6.92e-02 (≤ 1.20e-01); ✅ density of states improves with the mesh: 5.11e-01 (≤ 8.00e-01); ✅ group velocity improves with the mesh: 5.59e-01 (≤ 8.00e-01). Run time 67 s.
 
 ### Free vibrations of an elastic sphere
 
