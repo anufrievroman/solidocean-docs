@@ -462,9 +462,11 @@ Every plot has a type, shown with its name in the GUI: **3D** views of the struc
 | XY | `time` | heat | any expression vs time (transient problems), one curve per variable value |
 | XY | `line` | both | a profile: an expression evaluated point by point along a straight line (solid: stationary) |
 | 2D | `section` | both | a cross-section: an expression as a colour map on a plane (solid: stationary) |
+| 2D | `kmap` | solid | one band of a wavevector mesh as a colour map over the Brillouin zone (coherent heat conduction) |
+| 3D | `surfaces` | solid | several bands of a wavevector mesh as surfaces ω(kx, ky), turned with the mouse (coherent heat conduction) |
 | 3D | `field` | both | the structure coloured by a quantity (solid modes: the deformed, animated mode shape) |
 
-Without any `[[plots]]` a model gets the defaults of its physics: solid mechanics a dispersion plot and the displacement field (stationary: the displacement field); heat transfer the temperature field, plus the average temperature vs time for transient problems. Dispersion plots need an eigenfrequency problem, line and section plots field results (heat transfer or a stationary problem); others are skipped. Clicking a point of a 1D plot in the GUI shows the field there. A run writes a CSV per 1D plot (every non-frequency quantity, line and section); plots themselves are not written as images, and 3D field views are GUI only. Under every expression editor the interface offers a menu of the physics' named quantities.
+Without any `[[plots]]` a model gets the defaults of its physics: solid mechanics a dispersion plot and the displacement field (stationary: the displacement field; coherent heat conduction: a band map, the band surfaces and the displacement field); heat transfer the temperature field, plus the average temperature vs time for transient problems. Dispersion plots need an eigenfrequency problem, band maps and band surfaces a coherent heat conduction problem with a wavevector mesh, line and section plots field results (heat transfer or a stationary problem); others are skipped. Clicking a point of a 1D plot in the GUI shows the field there. A run writes a CSV per 1D plot (every non-frequency quantity, line and section); plots themselves are not written as images, and 3D field views are GUI only. Under every expression editor the interface offers a menu of the physics' named quantities.
 
 Profiles along a line (`kind = "line"`) take `start` and `end` (`[x, y, z]`, expressions, e.g. `["-L/2", "0", "t/2"]`), `points` (default 200), `line_axis` (`s` = distance from the start (default), or `x`, `y`, `z`), `at_time` (time step, -1 = the last) and `at` (variable value, -1 = all overlaid). The `quantity` is evaluated at each point (heat: T, Tx, Ty, Tz, qx, qy, qz; stationary solid mechanics: ux, uy, uz, strains, stresses, mises; x, y, z, variables; no `mean`/`max` reductions); points in holes or outside the structure are left out. The line may depend on the swept variable (e.g. along a beam of length L). The command line writes the profile as `<name>.csv`.
 
@@ -479,6 +481,8 @@ plane = "xy"
 origin = ["0", "0", "0"]
 ```
 
+Plots over the Brillouin zone need a wavevector mesh (`[solid.problem.kmesh]`). A band map (`kind = "kmap"`) draws band `band` (0-based; bands are numbered by ascending frequency at each wavevector, so a band is the n-th lowest surface and branches are not followed through their crossings) as filled contours on the meshed region, with the zone outlined and `at` choosing the value of the variable sweep. Band surfaces (`kind = "surfaces"`) draw `bands` of them from `band` up (`bands = 0`: all) as surfaces over kx, ky in a 3D view that the mouse turns; `colors = "bands"` gives each surface its own colour from `colormap`, `"single"` colours each by its own frequency. Both take `k_unit` for the wavevector axes (default `1/um` here), `x_min`/`x_max` for the kx range and `ky_min`/`ky_max` for the ky range (plain numbers in that unit, or an expression with units such as `"5e6[1/m]"`), and `y_min`/`y_max` for the quantity: the colour scale of a map, the vertical axis of the surfaces. Neither has a logarithmic axis, and clicking has no effect in the 3D view. Style: a map takes `markers` (its wavevectors), `levels`, `colormap`, `colorbar`, `grid` and `title`; the surfaces take `colormap` (the palette the per-band colours come from), `grid` and `title`. Line styles, single colours and legends play no part in either. The surfaces cover only the meshed region, so a mesh of the irreducible wedge shows a wedge: filling the zone from it by symmetry is still to come.
+
 Field plots (`kind = "field"`) show `quantity` on the structure (field results; empty = T or the displacement magnitude): any expression of the solution, evaluated at the nodes (gradients, fluxes, strains and stresses averaged over the elements meeting there), e.g. `"sqrt(qx^2 + qy^2 + qz^2)"` or `"mises"`. Mode shapes take `component` instead (`|u|` (default), `ux`, `uy`, `uz`). Under `[plots.style]`: `colormap`, `colorbar`, `title`, `outline` (undeformed outline) and `deform_scale` (largest displacement as a fraction of the model size).
 
 | key | default | meaning |
@@ -488,6 +492,9 @@ Field plots (`kind = "field"`) show `quantity` on the structure (field results; 
 | `quantity` | `"freq"` | y expression for `kind = "quantity"` (see below); always `freq` for the other kinds |
 | `color_by` | `""` | `colored`: colour expression, e.g. `"mean(abs(uz)^2)"` |
 | `color_label` | `""` | `colored`: colour-bar label; empty = the expression |
+| `band` | `0` | `kmap`, `surfaces`: the band drawn (0-based), or the lowest one for surfaces |
+| `bands` | `6` | `surfaces`: how many bands are drawn from `band` up (0 = all) |
+| `ky_min`, `ky_max` | `""` | `kmap`, `surfaces`: range of the ky axis (`x_min`, `x_max` give the kx range) |
 | `sweep` | `"auto"` | x axis: `kpath`, `variable`, or `auto` (k-path if there is one) |
 | `at` | `-1` | index into the other sweep (variable value or k point); `-1` = all overlaid |
 | `y_label` | `""` | axis label; empty = derived from the quantity |
