@@ -20,7 +20,7 @@ All sources live in `src/solidocean/`:
 | `geometry.py`, `meshing.py`, `lattice.py` | geometry with Gmsh/OpenCASCADE, meshing, periodic lattices and k-paths |
 | `selection.py` | the boundary selections of conditions (`on`, `faces`, `box`), for any physics |
 | `fem/` | numerical kernels: elements, elastic and heat assembly, boundary surfaces, Bloch reduction, eigen- and linear solvers |
-| `fields.py` | the expression engine for result quantities (`mean(T, "pad")`, `max(mises)`) |
+| `fields.py` | the expression engine for result quantities (`mean(T, "pad")`, `max(mises)`); reductions over part of the boundary (`"Film:zmax"`) evaluate the physics' fields on a surface quadrature with the same interface as the volume's |
 | `project.py`, `tomlio.py` | the model: reading, validating and writing the TOML file |
 | `outputs.py` | the `[output]` section: run folders and the files a run writes |
 | `physics/` | one subpackage per physics, and the registry |

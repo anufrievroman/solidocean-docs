@@ -141,7 +141,7 @@ Fields are complex in this problem: `abs(uz)` is an amplitude, `real()`, `imag()
 
 <table><thead><tr><th width="172.55859375">Field</th><th>Meaning</th></tr></thead><tbody><tr><td><code>ux</code>, <code>uy</code>, <code>uz</code></td><td>displacement, m (complex for modes and frequency-domain solutions)</td></tr><tr><td><code>exx</code> … <code>exy</code></td><td>tensor strain</td></tr><tr><td><code>sxx</code> … <code>sxy</code></td><td>stress, Pa</td></tr><tr><td><code>mises</code></td><td>von Mises stress, Pa</td></tr><tr><td><code>x</code>, <code>y</code>, <code>z</code></td><td>position, m</td></tr></tbody></table>
 
-Scalars: `freq` (Hz), `omega`, `kx`, `ky`, `kz`, `k` (rad/m), `mode` (band number), the model's variables and `pi`. A field has to be reduced with `mean()`, `integral()`, `max()` or `min()`, optionally restricted to one object:
+Scalars: `freq` (Hz), `omega`, `kx`, `ky`, `kz`, `k` (rad/m), `mode` (band number), the model's variables and `pi`. A field has to be reduced with `mean()`, `integral()`, `max()` or `min()`, optionally restricted to one object or to part of the outer boundary:
 
 ```toml
 quantity = "mean(abs(uz)^2)"              # out-of-plane fraction of a mode
@@ -149,6 +149,10 @@ quantity = "max(mises)"                   # largest von Mises stress
 quantity = "-min(uz) / 1[nm]"             # largest downward deflection, in nm
 quantity = "mean(sxx) / mean(exx)"        # Young's modulus of a bar pulled along x
 quantity = "mean(uz, \"Pad\")"            # average deflection of a pad
+quantity = "mean(ux, \"xmax\")"           # average displacement of the xmax face
+quantity = "integral(sxx*nx + sxy*ny + sxz*nz, \"xmax\")"   # force along x on that face, N
 ```
+
+A reduction can also run over part of the outer boundary, named like the selections of conditions: `"Film:zmax"` is the zmax face of the film's bounding box, `"Film:all"` the film's whole outer surface, `"Pad:xmin,xmax"` two faces, and without an object `"zmax"` or `"all"` the model's own. Over a surface `mean()` is the area average, `integral()` the surface integral (so `integral(1, "Film:zmax")` is the area), and the outward unit normal `nx`, `ny`, `nz` is a field there. An object's outer surface excludes its interfaces with other objects, and a name that is an object or a material always means its volume. The traction on a face is the stress times the normal, so its integral is the force the face carries.
 
 Plot kinds for solid mechanics: `dispersion` (eigenfrequencies against the k-path or the swept variable), `colored` (the same, with every point coloured by an expression — `color_by = "mean(abs(uz)^2)"` separates flexural from in-plane branches at a glance), `quantity`, `line` and `section` profiles, and `field`, the 3D view, which animates a mode shape and can show the deformed structure with the undeformed outline.

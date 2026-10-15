@@ -186,14 +186,18 @@ A model is nonlinear if a property depends on `T`, if a contact's `R` or layer d
 | `x`, `y`, `z`                  | position, m                                                                                       |
 | `Tamp`, `Tphase`, `Tre`, `Tim` | frequency domain: amplitude, phase (degrees, negative = lagging), in-phase and out-of-phase parts |
 
-Plus the scalars `time` and the model's variables. A field has to be reduced to a number for a quantity plot, with `mean()`, `integral()`, `max()` or `min()`, and a second argument restricts the reduction to one object:
+Plus the scalars `time` and the model's variables. A field has to be reduced to a number for a quantity plot, with `mean()`, `integral()`, `max()` or `min()`, and a second argument restricts the reduction to one object or to part of the outer boundary:
 
 ```toml
 quantity = "mean(T, \"pad\")"                              # average temperature of the pad
 quantity = "integral(qz, \"Au\")"                          # heat flowing up through all gold
 quantity = "integral(qx) / (dT * a * t)"                   # effective conductivity of a cell
+quantity = "mean(T, \"Film:zmax\")"                         # temperature of the film's top surface
+quantity = "integral(qx*nx + qy*ny + qz*nz, \"xmax\")"      # heat leaving through the xmax face, W
 quantity = "sqrt(mean(Tre)^2 + mean(Tim)^2)"               # amplitude of an average
 quantity = "atan2(mean(Tim), mean(Tre)) * 180/pi"          # its phase
 ```
+
+A reduction can also run over part of the outer boundary, named like the selections of conditions: `"Film:zmax"` is the zmax face of the film's bounding box, `"Film:all"` the film's whole outer surface, `"Pad:xmin,xmax"` two faces, and without an object `"zmax"` or `"all"` the model's own. Over a surface `mean()` is the area average, `integral()` the surface integral (so `integral(1, "Film:zmax")` is the area), and the outward unit normal `nx`, `ny`, `nz` is a field there. An object's outer surface excludes its interfaces with other objects, and a name that is an object or a material always means its volume. The net heat leaving through a face is the integral of the normal flux, `qx*nx + qy*ny + qz*nz`; the FDTR template reads its probe from the film's top surface this way.
 
 Plots show a quantity against time (transient) or against the swept variable; `line` plots give profiles through the structure, `section` plots a colour map on a plane, and `field` plots the 3D view. Without any `[[plots]]`, a heat model gets the temperature field, plus the average temperature against time if it is transient.

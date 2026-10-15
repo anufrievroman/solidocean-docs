@@ -73,7 +73,7 @@ So `faces = ["zmax"], on = "Pad"` is the top of a pad, and `faces = ["all"]` wit
 
 Each physics offers its own problem types (eigenfrequency, stationary, transient, frequency domain), and all of them can be wrapped in one **variable sweep**: any variable of the model — a dimension, a material property, a drive frequency, a wavevector component — is given a list of values and the whole problem is repeated for each. The geometry and the mesh are rebuilt only when something they depend on changes, so a frequency or wavevector sweep reuses one mesh and one factorisation-ready set of matrices.
 
-Results are reduced to **quantities**: expressions of the solution's fields, with `mean()`, `integral()`, `max()` and `min()` collapsing a field to one number, optionally restricted to one object (`mean(T, "Pad")`, `integral(qz, "Au")`). Integrals use the solver's own quadrature, so they are exact for the finite element field. The same expressions drive the plots, the CSV columns and the 3D views.
+Results are reduced to **quantities**: expressions of the solution's fields, with `mean()`, `integral()`, `max()` and `min()` collapsing a field to one number, optionally restricted to one object (`mean(T, "Pad")`, `integral(qz, "Au")`) or to part of the outer boundary (`mean(T, "Film:zmax")`, `integral(qx*nx + qy*ny + qz*nz, "xmax")` with the outward normal `nx ny nz`). Integrals use the solver's own quadrature, so they are exact for the finite element field. The same expressions drive the plots, the CSV columns and the 3D views.
 
 ## Algorithms and solvers
 
