@@ -19,6 +19,7 @@ Essentially, it is a Qt graphical interface uniting several open-source tools fo
 * **Eigenfrequencies** and mode shapes calculations with phonon dispersion along chosen wavevector paths in selected Brillouin zones.
 * **Stationary** displacement calculation with strain, stress and von Mises stress under fixed or prescribed displacements and boundary loads.
 * **Frequency domain** problems with the driven response to oscillating loads or displacements, with loss factors and absorbing regions.
+* **Coherent heat conduction** at low temperature: the phonon bands over a mesh of the Brillouin zone, the density of states, group velocity and spectral heat flux they carry, and the ballistic thermal conductance that follows from them.
 
 #### Heat transfer problems
 
