@@ -25,7 +25,7 @@ and the shear-horizontal modes $$\omega^2 = c_T^2\,(k^2 + (n\pi/t)^2)$$, solved 
 
 <figure><img src="../images/validation/lamb_convergence.png" alt="Mesh convergence of the eigenfrequencies at kt = 3 (largest error of all modes below ω t / c_T = 12); expected orders P1: 2, P2: 4."><figcaption><p>Mesh convergence of the eigenfrequencies at kt = 3 (largest error of all modes below ω t / c_T = 12); expected orders P1: 2, P2: 4.</p></figcaption></figure>
 
-**Checks:** ✅ largest frequency error along the path (h = t/16): 2.74e-04 (≤ 1.00e-03); ✅ P2 convergence order: 4.35 (≥ 3.50); ✅ P1 convergence order: 2.04 (≥ 1.80). Run time 36 s.
+**Checks:** ✅ largest frequency error along the path (h = t/16): 2.74e-04 (≤ 1.00e-03); ✅ P2 convergence order: 4.35 (≥ 3.50); ✅ P1 convergence order: 2.04 (≥ 1.80). Run time 65 s.
 
 ### Density of states of a membrane over the Brillouin zone
 
@@ -47,7 +47,7 @@ What is left over is the price of sampling. Bands are numbered by ascending freq
 
 Wavevectors 15 / 45 / 91: the density of states differs from the exact one by 10.3 %, 6.8 %, 6.4 %, the group velocity by 12.4 %, 8.7 %, 7.0 %. Over the same window the states below it carry 4.04e-07 W/(K m) at 0.1 K, against 4.57e-07 W/(K m) exactly (-12 %).
 
-**Checks:** ✅ ballistic conductance at 0.1 K: 1.16e-01 (≤ 1.50e-01); ✅ density of states, finest mesh: 6.35e-02 (≤ 8.00e-02); ✅ average group velocity, finest mesh: 6.95e-02 (≤ 1.20e-01); ✅ density of states improves with the mesh: 6.19e-01 (≤ 8.00e-01); ✅ group velocity improves with the mesh: 5.61e-01 (≤ 8.00e-01). Run time 67 s.
+**Checks:** ✅ ballistic conductance at 0.1 K: 1.16e-01 (≤ 1.50e-01); ✅ density of states, finest mesh: 6.35e-02 (≤ 8.00e-02); ✅ average group velocity, finest mesh: 6.95e-02 (≤ 1.20e-01); ✅ density of states improves with the mesh: 6.19e-01 (≤ 8.00e-01); ✅ group velocity improves with the mesh: 5.61e-01 (≤ 8.00e-01). Run time 75 s.
 
 ### Free vibrations of an elastic sphere
 
@@ -57,7 +57,7 @@ A free isotropic sphere (radius $$a$$, $$\nu = 0.25$$), meshed with curved quadr
 
 <figure><img src="../images/validation/sphere_convergence.png" alt="Mesh convergence of the sphere's eigenfrequencies (curved quadratic elements; expected order 4)."><figcaption><p>Mesh convergence of the sphere's eigenfrequencies (curved quadratic elements; expected order 4).</p></figcaption></figure>
 
-**Checks:** ✅ breathing mode: determinant vs closed form: 1.19e-13 (≤ 1.00e-12); ✅ largest frequency error (h = a/10): 5.32e-05 (≤ 1.00e-03); ✅ convergence order: 4.10 (≥ 3.30). Run time 21 s.
+**Checks:** ✅ breathing mode: determinant vs closed form: 1.19e-13 (≤ 1.00e-12); ✅ largest frequency error (h = a/10): 5.32e-05 (≤ 1.00e-03); ✅ convergence order: 4.10 (≥ 3.30). Run time 24 s.
 
 ### Driven bar: resonances with losses
 
@@ -69,7 +69,7 @@ whose resonances (the bar's quarter-wave modes, $$f_n = (2n-1)\,c_L/4L$$) have t
 
 <figure><img src="../images/validation/driven_bar.png" alt="Resonance curve of the bar's end (loss factor η = 0.02): the first three quarter-wave resonances against the exact solution."><figcaption><p>Resonance curve of the bar's end (loss factor η = 0.02): the first three quarter-wave resonances against the exact solution.</p></figcaption></figure>
 
-**Checks:** ✅ largest error relative to the peak amplitude: 5.04e-06 (≤ 1.00e-04). Run time 5 s.
+**Checks:** ✅ largest error relative to the peak amplitude: 5.04e-06 (≤ 1.00e-04). Run time 7 s.
 
 ## Statics
 
@@ -85,7 +85,7 @@ Errors are $$L^2$$ norms over the volume, relative to the norm of the exact fiel
 
 <figure><img src="../images/validation/lame_convergence.png" alt="Mesh convergence of displacement and stress (expected orders: P1 2 and 1, P2 3 and 2)."><figcaption><p>Mesh convergence of displacement and stress (expected orders: P1 2 and 1, P2 3 and 2).</p></figcaption></figure>
 
-**Checks:** ✅ P2 stress error (finest mesh): 1.31e-03 (≤ 2.00e-03); ✅ P2 displacement order: 2.92 (≥ 2.70); ✅ P2 stress order: 1.85 (≥ 1.80); ✅ P1 displacement order: 2.09 (≥ 1.80); ✅ P1 stress order: 1.03 (≥ 0.85). Run time 6 s.
+**Checks:** ✅ P2 stress error (finest mesh): 1.31e-03 (≤ 2.00e-03); ✅ P2 displacement order: 2.92 (≥ 2.70); ✅ P2 stress order: 1.85 (≥ 1.80); ✅ P1 displacement order: 2.09 (≥ 1.80); ✅ P1 stress order: 1.03 (≥ 0.85). Run time 7 s.
 
 ## Heat transfer
 
@@ -100,7 +100,7 @@ Errors are the largest nodal error at $$t_\mathrm{end}$$, relative to the surfac
 
 <figure><img src="../images/validation/semi_infinite_profiles.png" alt="Temperature profiles at three times (Crank-Nicolson, 400 steps, quadratic elements) against the erfc solution."><figcaption><p>Temperature profiles at three times (Crank-Nicolson, 400 steps, quadratic elements) against the erfc solution.</p></figcaption></figure>
 
-**Checks:** ✅ profile error (CN, 400 steps): 5.13e-06 (≤ 1.00e-04); ✅ backward Euler order: 1.00 (≥ 0.95); ✅ Crank-Nicolson error (320 steps): 4.62e-06 (≤ 1.00e-04); ✅ P2 mesh order (largest nodal error): 3.41 (≥ 1.80). Run time 24 s.
+**Checks:** ✅ profile error (CN, 400 steps): 5.13e-06 (≤ 1.00e-04); ✅ backward Euler order: 1.00 (≥ 0.95); ✅ Crank-Nicolson error (320 steps): 4.62e-06 (≤ 1.00e-04); ✅ P2 mesh order (largest nodal error): 3.41 (≥ 1.80). Run time 37 s.
 
 ### Disk heater on a half-space: spreading resistance
 
@@ -112,7 +112,7 @@ so the centre is at $$P/\pi k a$$ and the disk's mean temperature rise is $$8P/3
 
 <figure><img src="../images/validation/spreading_profile.png" alt="Surface temperature along a radius (mesh a/6) against the exact half-space solution (minus the sink's offset)."><figcaption><p>Surface temperature along a radius (mesh a/6) against the exact half-space solution (minus the sink's offset).</p></figcaption></figure>
 
-**Checks:** ✅ mean disk temperature (finest mesh): 8.42e-04 (≤ 1.00e-03); ✅ centre temperature (finest mesh): 8.17e-06 (≤ 1.00e-03); ✅ convergence order of the mean: 1.63 (≥ 1.50). Run time 13 s.
+**Checks:** ✅ mean disk temperature (finest mesh): 8.42e-04 (≤ 1.00e-03); ✅ centre temperature (finest mesh): 8.17e-06 (≤ 1.00e-03); ✅ convergence order of the mean: 1.63 (≥ 1.50). Run time 15 s.
 
 ### Thermal boundary resistance in a layer stack
 
@@ -132,7 +132,7 @@ and the coefficients from the orthogonality of the $$X_n$$ with weight $$\rho c_
 
 <figure><img src="../images/validation/stack_transient.png" alt="Two layers with a boundary resistance after the left face is raised to T₁: temperature on both sides of the interface against time, and profiles at three times (Crank-Nicolson, quadratic elements)."><figcaption><p>Two layers with a boundary resistance after the left face is raised to T₁: temperature on both sides of the interface against time, and profiles at three times (Crank-Nicolson, quadratic elements).</p></figcaption></figure>
 
-**Checks:** ✅ steady stack: flux and temperatures (P1 and P2): 1.70e-13 (≤ 1.00e-09); ✅ transient: largest nodal error for t ≥ 5 ns: 1.96e-04 (≤ 1.00e-03). Run time 1 s.
+**Checks:** ✅ steady stack: flux and temperatures (P1 and P2): 1.70e-13 (≤ 1.00e-09); ✅ transient: largest nodal error for t ≥ 5 ns: 1.96e-04 (≤ 1.00e-03). Run time 2 s.
 
 ### 3ω heater line: frequency-domain heat transfer
 
@@ -146,7 +146,7 @@ whose in-phase part falls linearly with $$\ln\omega$$ (slope $$-P/2\pi k$$, from
 
 The 3ω slope method applied to the three lowest frequencies gives k = 1.448 W/(m·K) (true 1.4; Cahill's formula over the same points: 1.448).
 
-**Checks:** ✅ amplitude error, every frequency: 1.18e-03 (≤ 1.00e-02); ✅ phase error (degrees), every frequency: 0.05 (≤ 0.50). Run time 13 s.
+**Checks:** ✅ amplitude error, every frequency: 1.18e-03 (≤ 1.00e-02); ✅ phase error (degrees), every frequency: 0.05 (≤ 0.50). Run time 25 s.
 
 ### FDTR: transducer film, boundary conductance and substrate
 
@@ -160,7 +160,7 @@ and the probed temperature is $$\Delta T = \frac{P}{2\pi}\int_0^\infty \lambda Z
 
 The difference at the lowest frequencies comes from the finite model: the far faces, held at the ambient temperature 10 µm away, are within a few thermal penetration depths (3.7 µm in Si at 1 MHz).
 
-**Checks:** ✅ phase difference (degrees), every frequency: 0.12 (≤ 0.20); ✅ amplitude difference, every frequency: 5.73e-03 (≤ 1.00e-02). Run time 29 s.
+**Checks:** ✅ phase difference (degrees), every frequency: 0.12 (≤ 0.20); ✅ amplitude difference, every frequency: 5.73e-03 (≤ 1.00e-02). Run time 30 s.
 
 ---
-*SolidOcean 0.1.3; generated 2026-10-14, 2026-10-15 on Darwin arm64, Python 3.13.16.*
+*SolidOcean 0.1.3; generated 2026-10-15 on Darwin arm64, Python 3.13.16.*
