@@ -130,11 +130,12 @@ spacing = ["p", "p", "0"]
 | `min_size` | `"0"` | minimum element size (0 = none); it also limits the regions |
 | `order` | `2` | 1 = linear, 2 = quadratic tetrahedra (recommended) |
 | `optimize` | `true` | gmsh mesh optimisation |
+| `grading` | `1.0` | how fast the element size may grow away from a finer region, see below |
 | `regions` | `[]` | optional element sizes per object, see below |
 
 Gmsh also makes elements smaller where the geometry is curved or small, and never larger than about a tenth of the model's size.
 
-**Mesh regions** give one object (what is left of it after later objects) or all domains of a material its own maximum element size, e.g. finer in a thin film or near a heater, coarser far away. They apply in order (a later one wins where they overlap). The mesh stays continuous across interfaces (neighbouring objects share the interface's triangles, which take the smaller size) and grades away from them.
+**Mesh regions** give one object (what is left of it after later objects) or all domains of a material its own maximum element size, e.g. finer in a thin film or near a heater, coarser far away. They apply in order (a later one wins where they overlap). The mesh stays continuous across interfaces: neighbouring objects share the interface's triangles, which take the smaller of the two sizes.
 
 ```toml
 [mesh]
@@ -142,6 +143,20 @@ max_size = "S/12"
 regions = [
     { on = "Pad", max_size = "h/3" },
     { name = "Far field", on = "Sink", max_size = "S/4" },
+]
+```
+
+**Grading** is how the size gets from a region to its surroundings. A region's size holds inside the region, and by default (`grading = 1`) nowhere else: one element past its boundary the size is back to `max_size`. That is enough when the region is what matters — a film whose thickness must be resolved — but not when a small feature's *surroundings* carry the physics, because they are never resolved however fine the feature itself is. A 100 nm contact on a 97 µm membrane is the case in point: the membrane under the contact stays at its own size, so the constriction the heat flows through is not resolved, and it is resolved differently each time the contact moves — a sweep over its position then carries mesh noise into the results.
+
+`grading` above 1 is the ratio between the sizes of neighbouring elements, so the size grows away from every region finer than `max_size` instead of jumping. 1.2 to 1.4 is a smooth mesh; the lower the value the more elements it takes.
+
+```toml
+[mesh]
+max_size = "100[um]"
+grading = 1.3                           # the tip's size spreads into the membrane under it
+regions = [
+    { on = "Membrane", max_size = "20[um]" },
+    { on = "Tip", max_size = "TipR/4" },     # a 50 nm tip
 ]
 ```
 
