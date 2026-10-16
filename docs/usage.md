@@ -92,16 +92,16 @@ solidocean --install-app                  # macOS: add SolidOcean.app to ~/Appli
 | `--install-app [DIR]` | macOS: create `SolidOcean.app` (default `~/Applications`) and exit     |
 | `--version`           | print the version                                                      |
 
-A headless run logs the mesh, the progress through the sweep, and the files it wrote:
+A headless run logs the mesh, how far it has got, and the files it wrote:
 
 ```
 $ solidocean heat_bar.toml
-SolidOcean 0.1.0: Simple heated bar -> heat_bar
+SolidOcean 0.2.0: Simple heated bar -> heat_bar
 T_hot = 305
 Meshing…
 Mesh: 1257 elements, 2490 nodes (temperature DOFs), order 2 [0.0 s]
   T: 300 .. 305 K
-[1/6]
+  ████░░░░░░░░░░░░░░░░░░░░  17% (1/6), 3s elapsed, ~15s left
 ...
 Done in 0.18 s
 wrote heat_bar/quantities.csv
@@ -110,3 +110,22 @@ wrote heat_bar/temperature_along_the_bar.csv
 wrote heat_bar/model.toml
 wrote heat_bar/run.json
 ```
+
+The progress line counts sweep values, or the time steps of a transient problem, and estimates the time
+left from the average pace so far — so it only settles down after the first few steps. A single solve with
+no sweep reports only when it is done; while it runs, the log lines show which stage it is at.
+
+In a terminal the bar rewrites itself on one line. When the output goes to a pipe or a log file — a script,
+a CI job, an agent — it becomes about ten plain lines instead, so the progress survives in the captured
+output:
+
+```
+$ solidocean sthm_scan.toml | tee run.log
+...
+    0% (1/55), 12s elapsed, ~11m 00s left
+   11% (6/55), 1m 09s elapsed, ~9m 23s left
+   20% (11/55), 2m 06s elapsed, ~8m 25s left
+...
+```
+
+`--quiet` suppresses the progress along with everything else but errors.
