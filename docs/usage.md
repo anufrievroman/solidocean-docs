@@ -129,3 +129,20 @@ $ solidocean sthm_scan.toml | tee run.log
 ```
 
 `--quiet` suppresses the progress along with everything else but errors.
+
+### When a run fails
+
+A mesh is checked before it is solved. An element with no volume — four nodes in a plane, or a tetrahedron wound inside out — makes the system matrix singular, so the run stops with the element named rather than with a bare "singular matrix" from the solver:
+
+```
+the mesh has 1 unusable element(s) — their nodes are coplanar, so the system matrix would be singular:
+  element 63884 in 'Strip thin' at (-2.695e-05, 1.623e-07, -3.133e-07) m: quality 4.7e-18,
+  volume 1.25e-38 m^3, edges 7.77e-09 to 4.02e-07 m (ratio 52)
+
+Element quality by object:
+  ...
+```
+
+It usually means the geometry has a sliver: faces that nearly touch, a zero-thickness overlap between two objects, or a size that jumps abruptly at a small feature.
+
+Only genuinely degenerate elements are refused. **Flat elements are not an error**: a region meshed much coarser than it is thin produces them by design — a 350 nm membrane meshed at 10 µm has no other option — and they solve perfectly well. The per-object quality table is there to tell the two apart, since a single global minimum cannot.
