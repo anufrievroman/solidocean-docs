@@ -150,15 +150,20 @@ regions = [
 
 `grading` above 1 is the ratio between the sizes of neighbouring elements, so the size grows away from every region finer than `max_size` instead of jumping. 1.2 to 1.4 is a smooth mesh; the lower the value the more elements it takes.
 
+A region may also carry its own `grading`, which overrides the mesh's for that region alone. This is the element budget: a gradient is only worth paying for around the small feature whose *surroundings* carry the physics, so grade that one tightly and leave the large regions at `1`. A region without a `grading` of its own follows the mesh's.
+
 ```toml
 [mesh]
 max_size = "100[um]"
-grading = 1.3                           # the tip's size spreads into the membrane under it
+grading = 1.0                                               # nothing grades unless it asks to
 regions = [
-    { on = "Membrane", max_size = "20[um]" },
-    { on = "Tip", max_size = "TipR/4" },     # a 50 nm tip
+    { on = "Membrane", max_size = "20[um]" },               # no gradient: it would only cost elements
+    { on = "Strip", max_size = "1[um]" },
+    { on = "Tip", max_size = "TipR/4", grading = 1.2 },     # a 50 nm tip: its surroundings matter
 ]
 ```
+
+Note that the finest field wins everywhere (the sizes combine as a minimum), so a tightly graded small region can set the size in a coarser region nearby — which is the point, but it means the cost of a grading is not confined to the region that sets it.
 
 ## Lattice
 
