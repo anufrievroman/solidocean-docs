@@ -41,7 +41,7 @@ Material properties, heat sources and spatial profiles are evaluated **at the qu
 
 Geometry is built with [Gmsh](https://gmsh.info) and its OpenCASCADE kernel, from an ordered list of objects — blocks, cylinders, cones, spheres, prisms, triangular blocks and lattice cells — each either added or subtracted:
 
-* The list is **painter-style**: later `add` objects win where they overlap, `subtract` removes from everything before it. An object can be bypassed (`enabled = false`) without being deleted, which lets a sweep pass through a radius of zero.
+* The list is **painter-style**: later `add` objects win where they overlap, `subtract` removes from everything before it, or only from one chosen object or material. An object can be bypassed (`enabled = false`) without being deleted, which lets a sweep pass through a radius of zero.
 * Any object can be **rotated** (angles in degrees about the global axes) and **arrayed** (`array` counts and `spacing`); an array is one object, with one name and material, and overlapping copies merge.
 * Features that touch are **fused into one conforming mesh**, so two materials are bonded at their interface: the mesh nodes are shared there, and displacement, traction and temperature are continuous across it. In heat transfer an interface can instead be given a contact resistance.
 

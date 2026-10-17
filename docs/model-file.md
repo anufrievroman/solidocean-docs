@@ -78,7 +78,7 @@ Every property is an expression, so it may use variables and be swept with `[pro
 
 `[[objects]]`, repeatable, applied in order: the geometry of the model.
 
-Common keys: `type`, `name`, `op` (`add` | `subtract`), `material` (for `add`), `enabled` (default `true`; `false` bypasses the object without deleting it). Later `add` objects replace earlier material where they overlap; `subtract` removes from all earlier objects. Objects with zero size/radius are skipped. Objects that touch or overlap are fused into one conforming mesh: different materials are bonded at their interface (shared nodes, so displacement and traction are continuous), e.g. a pillar standing on a slab. In heat transfer an interface may instead have a thermal contact resistance, see [Thermal contacts](#thermal-contacts).
+Common keys: `type`, `name`, `op` (`add` | `subtract`), `material` (for `add`), `on` (for `subtract`), `enabled` (default `true`; `false` bypasses the object without deleting it). Later `add` objects replace earlier material where they overlap; `subtract` removes from all earlier objects, or, with `on`, only from one earlier object or from the earlier objects of one material (e.g. `on = "Film"`: a hole through a film that leaves the substrate below it whole). A subtraction from a bypassed object removes nothing. Objects with zero size/radius are skipped. Objects that touch or overlap are fused into one conforming mesh: different materials are bonded at their interface (shared nodes, so displacement and traction are continuous), e.g. a pillar standing on a slab. In heat transfer an interface may instead have a thermal contact resistance, see [Thermal contacts](#thermal-contacts).
 
 | type | keys |
 |---|---|
