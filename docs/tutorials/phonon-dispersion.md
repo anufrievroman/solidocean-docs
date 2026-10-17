@@ -50,7 +50,7 @@ The period `a` is an auxiliary length, not a feature of the membrane. It only ha
 
 ```bash
 $ solidocean membrane.toml
-SolidOcean 0.2.0: Membrane (plate) -> membrane
+SolidOcean 0.2.1: Membrane (plate) -> membrane
 Meshing…
 Mesh: 420 elements, 921 nodes (2763 DOFs), order 2 [0.0 s]
 Assembly: 1848 free DOFs [0.0 s]

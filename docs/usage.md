@@ -96,7 +96,7 @@ A headless run logs the mesh, how far it has got, and the files it wrote:
 
 ```
 $ solidocean heat_bar.toml
-SolidOcean 0.2.0: Simple heated bar -> heat_bar
+SolidOcean 0.2.1: Simple heated bar -> heat_bar
 T_hot = 305
 Meshing…
 Mesh: 1257 elements, 2490 nodes (temperature DOFs), order 2 [0.0 s]
