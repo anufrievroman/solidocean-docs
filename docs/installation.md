@@ -46,6 +46,11 @@ On macOS, if after the installation SolidOcean is still not listed as an app wit
 solidocean --install-app
 ```
 
+The app opens `.toml` model files from Finder: it is listed under **Open With**, and it opens them on a
+double-click unless another app (a code editor, say) already has them. To make SolidOcean their default
+anyway, select a model file, choose **File → Get Info**, pick SolidOcean under **Open with** and click
+**Change All**.
+
 #### Solver backends
 
 SolidOcean uses the [MUMPS](https://mumps-solver.org) solver when the `python-mumps` package is present (the conda environment installs it) and falls back to SciPy's SuperLU otherwise. MUMPS is roughly ten times faster, so it is recommended.
