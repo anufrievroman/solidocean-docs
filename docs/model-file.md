@@ -264,14 +264,45 @@ A frequency-domain problem solves (K (1 + iη) + iω(αM + βK) − ω² M) û =
 
 ### k-path
 
-`[solid.problem.kpath]`, optional: the wavevector path of a phonon dispersion.
+`[solid.problem.kpath]`, optional: the wavevectors of an eigenfrequency run, either a path through named points (`mode = "path"`, the default) or exactly the ones listed (`mode = "list"`).
 
 | key | meaning |
 |---|---|
-| `points` | `{ G = [0,0,0], X = [0.5,0,0] }`: reduced coordinates, fractions of the reciprocal vectors b1, b2, b3 (bᵢ·aⱼ = 2πδᵢⱼ; for axis periods, b = 2π/period along x, y, z). Hexagonal: `M = [0.5, 0, 0]`, `K = [2/3, 1/3, 0]` |
-| `path` | `["G", "X", "M", "G"]` |
-| `n` | points per segment |
-| `enabled` | `false` keeps the path in the file without running it |
+| `mode` | `"path"` (through the named points below) or `"list"` (exactly the wavevectors of `k`) |
+| `points` | path: `{ G = [0,0,0], X = [0.5,0,0] }`: reduced coordinates, fractions of the reciprocal vectors b1, b2, b3 (bᵢ·aⱼ = 2πδᵢⱼ; for axis periods, b = 2π/period along x, y, z). Hexagonal: `M = [0.5, 0, 0]`, `K = [2/3, 1/3, 0]` |
+| `path` | path: `["G", "X", "M", "G"]` |
+| `n` | path: points per segment |
+| `k` | list: the wavevectors themselves, `[[0.4, 0.1, 0], [0.4, 0.2, 0]]`, in the same reduced coordinates; expressions are allowed |
+| `enabled` | `false` keeps the sweep in the file without running it |
+
+A list is for the wavevectors an experiment picks out, which are not round fractions of the zone: one solve per entry, in the order given, with no interpolation between them. Its entries may be expressions, so a direction can be swept — `k = [["0.4*cos(th[deg])", "0.4*sin(th[deg])", "0"]]` with `th` swept by `[problem.sweep]` turns the whole run into a sweep of the angle. Plots of a list put the wavevectors along the x axis, spaced by their distance in k-space but without the names a path has. Both halves are kept in the file: a path you built and a list you typed survive switching `mode` between them, and only the mode in force is run.
+
+```toml
+[solid.problem.kpath]
+mode = "list"
+k = [[0.5, 0.0, 0.0], [0.5, 0.0875, 0.0], [0.5, 0.1763, 0.0]]
+```
+
+### Fourier components
+
+`[solid.problem.fourier]`, optional (eigenfrequency problems): the plane-wave components of the fields of every mode over the unit cell.
+
+| key | default | meaning |
+|---|---|---|
+| `orders` | `[1, 1, 0]` | highest order along b1, b2, b3: every G = h₁b₁ + h₂b₂ + h₃b₃ with \|hᵢ\| ≤ `orders[i]`, so (2·orders₁+1)(2·orders₂+1)(2·orders₃+1) vectors in all (at most 2000). An order must be 0 along a direction that is not periodic |
+| `enabled` | `true` | `false` keeps the setting in the file without computing anything |
+
+A mode of wavevector **k** is u(r) = e^{i**k**·r} p(r) with p periodic in the lattice, so each of its fields is a sum of plane waves at the wavevectors **k** + **G**. Their complex amplitudes are
+
+$$\hat{s}(G) = \frac{1}{V} \int_{cell} f(r)\, e^{-i (k + G) \cdot r}\, dV$$
+
+for f each of the three displacement components `ux`, `uy`, `uz` and the six tensor strains `exx`, `eyy`, `ezz`, `eyz`, `exz`, `exy`. The phase runs over **k** + **G** rather than **G** alone, because it is e^{−i**k**·r} that turns the Bloch field into the periodic one this is the Fourier series of; that also makes ŝ(G) independent of which cell of the structure the integral is taken over. At **k** = 0 the two are the same. The integral and V run over the material in the cell (a cell without holes: the cell itself), so ŝ(0) is the volume average of the field.
+
+**Normalisation.** Each mode is scaled to unit modal mass, ∫ρ|u|² dV = 1 over the cell in SI units, and its phase rotated so that Σ u·u is real and positive. Both are fixed on purpose: eigenvectors have no natural scale, so components of different modes can only be compared once one is chosen. (This is not the normalisation of the `ux`, `uy`, `uz` of plot quantities, which are scaled to mean |u|² = 1 instead.)
+
+**Degeneracy.** Where several modes share a frequency, the eigenvectors are an arbitrary basis of that subspace: the components of one such mode are meaningless on their own, while sums over the whole group (for instance Σ |ŝ(G)|² over it) are not. The run detects the groups — frequencies within 10⁻⁴ of the highest frequency computed at that wavevector — and writes how many modes each mode shares its frequency with (1 = a simple mode) to `fourier_degeneracy.csv`.
+
+Written to the run folder: `fourier.csv`, one row per solve, field and reciprocal vector, and one complex column per mode (`1.5e-09-2.1e-10j`, read back by Python's `complex()` or `numpy.loadtxt(..., dtype=complex)`); `fourier_degeneracy.csv` beside it; and the arrays `fourier` (sweep value, wavevector, mode, G, field), `fourier_orders` and `fourier_g` in `results.npz`. The components are computed during the run, so they cost nothing beyond it but cannot be added to results afterwards.
 
 ### Wavevector mesh
 
