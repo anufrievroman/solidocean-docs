@@ -28,7 +28,7 @@ A model solves one physics, chosen by `physics` in `[project]`: `solid` (eigenfr
 [mesh]
 [problem]          # shared by every physics: variable sweep, linear solver
 [solid]            # solid mechanics: symmetry, [[solid.conditions]], [solid.problem]
-[heat]             # heat transfer: initial values, [[heat.conditions]], [[heat.sources]], [heat.problem]
+[heat]             # heat transfer: initial values, symmetry, [[heat.conditions]], [[heat.sources]], [heat.problem]
 [output]           # where the results go and which files are written
 [[plots]]
 ```
@@ -205,7 +205,7 @@ The whole problem of the physics is repeated for every value. Geometry and mesh 
 | `symmetry` | faces of the bounding box with zero normal displacement (mirror-symmetric modes): `xmin`, `xmax`, `ymin`, `ymax`, `zmin`, `zmax` |
 | `antisymmetry` | faces of the bounding box with zero tangential displacement (mirror-antisymmetric modes) |
 
-Other boundaries are traction-free unless a condition below applies. Faces of a periodic axis cannot carry symmetry, antisymmetry or a condition on the whole model. Modelling half a structure once with `symmetry` and once with `antisymmetry` on the cut plane gives all modes of the full structure.
+Other boundaries are traction-free unless a condition below applies. Faces of a periodic axis cannot carry symmetry, antisymmetry or a condition on the whole model. Symmetry and antisymmetry planes are cut planes, not surfaces: they are left out of every condition's selection (`faces = ["all"]` stops at them), and naming one in a condition on the whole model is an error. Modelling half a structure once with `symmetry` and once with `antisymmetry` on the cut plane gives all modes of the full structure.
 
 ### Boundary conditions
 
@@ -332,13 +332,14 @@ So `faces = ["zmax"]`, `on = "Pad"` is the top of a pad; `faces = ["all"]`, `on 
 
 `[heat]`, for `physics = "heat"`.
 
-Solves ρ c_p ∂T/∂t = ∇·(k∇T) + Q for the temperature T (K) on the same mesh. Faces without a condition are insulated (zero normal flux), which is also a mirror-symmetry plane. The `[lattice]` only shapes the geometry (e.g. a `cell`); it is not imposed on T.
+Solves ρ c_p ∂T/∂t = ∇·(k∇T) + Q for the temperature T (K) on the same mesh. Faces without a condition are insulated (zero normal flux), which is also a mirror-symmetry plane; `symmetry` names such planes. The `[lattice]` only shapes the geometry (e.g. a `cell`); it is not imposed on T.
 
 **Temperature-dependent properties.** The thermal properties of a material (`k`, `kxx`, `kyy`, `kzz`, `cp`) and its density `rho` may use the temperature `T` (K), e.g. `k = "148[W/(m*K)]*(300[K]/T)^1.3"` (Si) or `cp = "700[J/(kg*K)]*(1 + 4e-4*(T/1[K] - 300))"`. They are evaluated at every quadrature point. Such a model, or one with a `radiation` condition, is nonlinear: it is solved by iteration (properties at the previous iterate, radiation linearised about it, Newton) until the temperature change is below `tol` (see `[heat.problem]`); a transient problem iterates every time step. So is a thermal contact whose `R` or layer material depends on `T`. A stationary nonlinear model needs a heat sink (fixed temperature, convection or radiation).
 
 | key | default | meaning |
 |---|---|---|
 | `initial` | `"293.15[K]"` | initial temperature of a transient problem; may use `x`, `y`, `z` (m) |
+| `symmetry` | `[]` | faces of the bounding box that are mirror planes (`xmin` … `zmax`): insulated, and left out of every condition's selection, so `faces = ["all"]` (of the model or of an object touching the plane) stops at them; naming one in a condition on the whole model is an error. The same physics as leaving the face empty, but the file says why it is |
 
 ### Heat boundary conditions
 
