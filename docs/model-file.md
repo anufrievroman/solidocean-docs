@@ -217,6 +217,7 @@ Other boundaries are traction-free unless a condition below applies. Faces of a 
 |---|---|
 | `type` | `fixed` (zero displacement), `displacement` (prescribed displacement) or `load` (boundary load) |
 | `name` | optional label |
+| `enabled` | `false` bypasses it: kept in the file, not applied (and not checked), as if deleted |
 | `faces`, `on`, `box` | the selection, see [Selections](#selections) |
 | `displacement` | `displacement`: `[ux, uy, uz]` (expressions, m); an empty component `""` is free, e.g. `["10[nm]", "", ""]` moves the faces along x and lets them slide in y and z. Eigenfrequency problems hold the given components at zero |
 | `load_type` | `load`: `area` (force per area, Pa), `total` (total force, N, spread uniformly over the selected area) or `pressure` |
@@ -357,6 +358,7 @@ Solves ρ c_p ∂T/∂t = ∇·(k∇T) + Q for the temperature T (K) on the same
 | `h`, `T_ext` | `convection`: heat-transfer coefficient (W/(m²·K)) and ambient temperature |
 | `emissivity`, `T_ext` | `radiation`: emissivity ε (0 to 1, default `"1"`) and ambient temperature (default 293.15 K); `T_ext` may depend on `time` |
 | `name` | optional label |
+| `enabled` | `false` bypasses it: kept in the file, not applied (and not checked), as if deleted |
 
 ### Heat sources
 
@@ -367,6 +369,7 @@ Solves ρ c_p ∂T/∂t = ∇·(k∇T) + Q for the temperature T (K) on the same
 | `material` | the source fills every domain of this material |
 | `value` | power density, e.g. `"1e12[W/m^3]"`; may depend on `time` |
 | `name` | optional label |
+| `enabled` | `false` bypasses it: kept in the file, not applied (and not checked), as if deleted |
 | `pulse` | optional pulse or oscillation (transient problems), see below |
 | `profile` | optional spatial profile, see below |
 
@@ -380,9 +383,10 @@ Thermal contact at interfaces between objects. Interfaces are perfect contacts (
 |---|---|---|
 | `type` | `"resistance"` | `resistance`: a thermal boundary (Kapitza) resistance `R`; `layer`: a thin layer of a material, not meshed |
 | `between` | `[]` | `["pad", "membrane"]`: the faces the two objects (or materials) share; `["pad"]`: all of pad's interfaces with other objects; `[]`: every interface between different materials. Two interfaces may not share faces |
-| `R` | `"1e-8[m^2*K/W]"` | `resistance`: R (m²·K/W); typically 1e-9 to 1e-8 between solids, e.g. `"1/200[MW/(m^2*K)]"`. May use `T` (the mean of both sides) |
+| `R` | `"1e-8[m^2*K/W]"` | `resistance`: R (m²·K/W); typically 1e-9 to 1e-8 between solids, e.g. `"1/200[MW/(m^2*K)]"`. May use `T` (the mean of both sides), and must then stay positive. `0` is the perfect contact: the interface is not cut and T is continuous across it, exactly the model without the interface — a natural end of a sweep of R |
 | `material`, `thickness` | `""`, `"5[nm]"` | `layer`: the layer's material and thickness d. R = d / k (k across the layer: n·k·n for an anisotropic one); its heat capacity ρ c_p d goes half to each side (transient). No heat flow along the layer. Its properties may use `T` |
 | `name` | | optional label |
+| `enabled` | `true` | `false` bypasses it: kept in the file, not applied (and not checked), as if deleted |
 
 ```toml
 [[heat.interfaces]]
@@ -500,7 +504,7 @@ contents = ["tables", "model"]
 
 **Rerunning.** Changing a parameter named in the template puts the next run in its own folder. With the same parameters the name repeats, and `on_exists` decides: `increment` adds ` (2)`, `timestamp` always appends the date and time, `overwrite` writes into the same folder again. `{n}` in the template numbers runs instead.
 
-**Contents.** `tables`: `dispersion.csv` / `quantities.csv` and a table per 1D plot. `data`: the `.npz` with the fields and quantities in SI (reloadable in the GUI). `model`: a copy of the model as `model.toml` plus `run.json` (version, time, variable values and expressions, the sweep, what the solver reported) — the parameters of a saved run, next to its results. Plots are not written as images: save the one you want from the GUI.
+**Contents.** `tables`: `dispersion.csv` / `quantities.csv` and a table per 1D plot. The columns of `quantities.csv` are named after the plots (`name`), so a script reads them by name and reordering `[[plots]]` changes nothing; `quantities.json` beside it maps each column name to its expression, in column order. A quantity evaluated without a plot is headed by its expression. `data`: the `.npz` with the fields and quantities in SI (reloadable in the GUI). `model`: a copy of the model as `model.toml` plus `run.json` (version, time, variable values and expressions, the sweep, what the solver reported) — the parameters of a saved run, next to its results. Plots are not written as images: save the one you want from the GUI.
 
 `solidocean model.toml -o DIR` writes into exactly `DIR`, ignoring the template; `--contents tables,model` overrides `contents` for one run.
 

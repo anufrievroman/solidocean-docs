@@ -84,16 +84,17 @@ Mesh: 1257 elements, 2490 nodes (temperature DOFs), order 2 [0.0 s]
 ...
 Done in 0.18 s
 wrote heat_bar/quantities.csv
+wrote heat_bar/quantities.json
 wrote heat_bar/temperature.npz
 wrote heat_bar/temperature_along_the_bar.csv
 wrote heat_bar/model.toml
 wrote heat_bar/run.json
 ```
 
-**The results.** `quantities.csv` holds one row per sweep value, with a column per quantity plot:
+**The results.** `quantities.csv` holds one row per sweep value, with a column per quantity plot, headed by the plot's name (`quantities.json` gives the expression behind each column):
 
 ```
-T_hot,time [s],mean(T),integral(qx) / ((T_hot - T_cold) * w * t)
+T_hot,time [s],Mean temperature,Effective conductivity
 305,0,302.5,148
 310,0,305,148
 ...

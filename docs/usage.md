@@ -105,6 +105,7 @@ Mesh: 1257 elements, 2490 nodes (temperature DOFs), order 2 [0.0 s]
 ...
 Done in 0.18 s
 wrote heat_bar/quantities.csv
+wrote heat_bar/quantities.json
 wrote heat_bar/temperature.npz
 wrote heat_bar/temperature_along_the_bar.csv
 wrote heat_bar/model.toml
