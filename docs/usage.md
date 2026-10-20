@@ -85,7 +85,7 @@ solidocean --install-app                  # macOS: add SolidOcean.app to ~/Appli
 | `--template NAME`     | write a new model from a template to `INPUT` and exit                  |
 | `--set NAME=EXPR`     | override a variable, e.g. `--set 'a=600[nm]'`; repeatable              |
 | `--check`             | validate the model file and exit (prints `OK`, or the errors)          |
-| `--mesh-only`         | build the geometry and the mesh, write `mesh.msh`, and exit            |
+| `--mesh-only`         | build the geometry and the mesh, write `mesh.msh` (gmsh format, coordinates in metres), and exit |
 | `-o`, `--output DIR`  | write the results into exactly `DIR`, ignoring the `[output]` template |
 | `--contents LIST`     | what to write for this run: `tables`, `data`, `model`                  |
 | `-q`, `--quiet`       | print only errors                                                      |
