@@ -33,6 +33,8 @@ A model solves one physics, chosen by `physics` in `[project]`: `solid` (eigenfr
 [[plots]]
 ```
 
+Every key must be one the section knows: a misspelt or unknown key (`radus` for `radius`, a key of another object type) stops loading with an error naming the table, the key and the nearest known one, rather than being ignored. Only `[variables]` takes any names.
+
 Templates: `empty`, `bulk`, `membrane`, `beam`, `square`, `hexagonal`, `honeycomb`, `pillars` (eigenfrequencies, dispersion), `cantilever`, `tensile` (stationary), `driven_beam` (frequency domain) for solid mechanics; `heat_empty`, `heat_bar`, `heat_convection`, `heat_pad`, `heat_radiation`, `heat_diode`, `heat_contact`, `heat_3omega`, `heat_fdtr` for heat transfer.
 
 ## Project
