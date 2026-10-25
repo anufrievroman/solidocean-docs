@@ -175,13 +175,15 @@ type = "hydrodynamic"
 viscous_length = "ell"      # the length l below
 ```
 
-In a pure crystal at low temperature, where normal (momentum-conserving) phonon scattering dominates, the heat flux is no longer −k∇T: it flows like a viscous fluid, with Poiseuille profiles in narrow structures and vortices beside the contacts. This problem type solves the steady Guyer–Krumhansl equation for the heat flux **q** together with the temperature:
+In a pure crystal at low temperature, where normal (momentum-conserving) phonon scattering dominates, the heat flux is no longer −k∇T: it flows like a viscous fluid, with Poiseuille profiles in narrow structures and vortices beside the contacts. This problem type solves the steady Guyer–Krumhansl equation [1, 2] for the heat flux **q** together with the temperature:
 
 $$
 \mathbf q + k\,\nabla T = \ell^2\left[\nabla^2\mathbf q + 2\,\nabla(\nabla\cdot\mathbf q)\right],\qquad \nabla\cdot\mathbf q = Q,
 $$
 
-with the viscous length ℓ (`viscous_length`) standing for the viscosity and the resistive scattering together. For ℓ → 0 the right-hand side vanishes and the equation is Fourier's law; when ℓ is comparable to the width of the structure the heat flow is viscous. The ratio χ = w²/ℓ² of a ribbon of width w measures the size of the effect: the transport is diffusive for χ well above 10, and the vortices appear below it.
+with the viscous length ℓ (`viscous_length`) standing for the viscosity and the resistive scattering together: for a Debye crystal of phonon speed c, with normal and resistive relaxation times τ<sub>N</sub> and τ<sub>R</sub>, ℓ² = c²τ<sub>N</sub>τ<sub>R</sub>/5 and k = C<sub>v</sub>c²τ<sub>R</sub>/3, with C<sub>v</sub> the heat capacity per unit volume [1]. For ℓ → 0 the right-hand side vanishes and the equation is Fourier's law; when ℓ is comparable to the width of the structure the heat flow is viscous. The ratio χ = w²/ℓ² of a ribbon of width w measures the size of the effect [2]: for χ → ∞ the transport is Fourier's law, and for small χ the viscous term dominates, with a parabolic (Poiseuille) flux profile across a ribbon between no-slip walls and heat vortices beside current contacts. The vortices are shown at χ = 0.5 and absent at χ = 2×10⁴ in [2]; in the validation case, with its Gaussian contacts, the backflow falls below 0.1 % of the direct flow near χ = 20 and is gone near χ = 30.
+
+This is the three-dimensional form of the equation [1]. The two-dimensional equation derived in [2] has one more term, −ζ∇(∇·**q**), which vanishes where ∇·**q** = 0, that is, without a volume source.
 
 The equations have the form of Stokes flow, with **q** as the velocity and T as the pressure, so they need a stable pair of elements: quadratic **q** on every node of the mesh and linear T on its vertices (Taylor–Hood). The weak form, with the test functions **w** (quadratic, vector) and v (linear), is
 
@@ -206,7 +208,13 @@ A slab closed by two symmetry planes is therefore exactly a two-dimensional mode
 Hydrodynamic problems need quadratic elements (`mesh.order = 2`), an isotropic conductivity, steady conditions and temperature-independent properties. Convection, radiation, pulses and thermal contacts are not available; the model is checked for these before it is solved. A contact with sharp edges makes the flux jump within one element, and the heat through a section then converges only slowly under mesh refinement: use smooth profiles, as the template does.
 {% endhint %}
 
-`qx`, `qy`, `qz` are the solved heat flux here, not −k∇T, so they differ from the gradient fields `Tx`, `Ty`, `Tz` (scaled by −k). The template **Hydrodynamic heat vortices** injects heat through a Gaussian contact on one side of a ribbon and removes it through the opposite one, and sweeps χ: the flux runs backwards beside the contacts below χ ≈ 10, and the plot `Backflow` (strongest backward over strongest forward flux) goes to zero as χ grows. The [validation](../validation/report.md) compares it with the exact solution of the infinite strip.
+`qx`, `qy`, `qz` are the solved heat flux here, not −k∇T, so they differ from the gradient fields `Tx`, `Ty`, `Tz` (scaled by −k). The template **Hydrodynamic heat vortices** injects heat through a Gaussian contact on one side of a ribbon and removes it through the opposite one, and sweeps χ: the flux runs backwards beside the contacts at small χ, and the plot `Backflow` (strongest backward over strongest forward flux) goes to zero as χ grows (near χ = 30 for its Gaussian contacts, which stand in for the point sources of [2]). The [validation](../validation/report.md) compares it with the exact solution of the infinite strip.
+
+**References**
+
+\[1] R. A. Guyer and J. A. Krumhansl, Solution of the linearized phonon Boltzmann equation, *Phys. Rev.* **148**, 766 (1966).
+
+\[2] M.-Y. Shang, C. Zhang, Z. Guo and J.-T. Lü, Heat vortex in hydrodynamic phonon transport of two-dimensional materials, *Sci. Rep.* **10**, 8272 (2020).
 
 ### Nonlinear models
 
