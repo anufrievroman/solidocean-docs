@@ -18,7 +18,7 @@ Geometry is built from primitives, meshed with tetrahedra, given materials and b
 A model solves **one physics**, chosen by `physics` in `[project]`:
 
 * [**Solid mechanics**](solid-mechanics.md) — `physics = "solid"`: the vector elastodynamic operator. Eigenfrequencies and phonon dispersion, stationary loads, and the driven harmonic response.
-* [**Heat transfer**](heat-transfer.md) — `physics = "heat"`: the scalar Fourier operator. Stationary, transient and frequency-domain conduction.
+* [**Heat transfer**](heat-transfer.md) — `physics = "heat"`: the scalar Fourier operator. Stationary, transient, frequency-domain and hydrodynamic conduction.
 
 {% hint style="info" %}
 Everything internal, and every result file, is in **SI units**. Inputs may be written in any unit (`500[nm]`, `165.7[GPa]`, `1[W/m]`) and are converted on the way in; the preferred units of a project only change how numbers are displayed.

@@ -25,6 +25,7 @@ Essentially, it is a Qt graphical interface uniting several open-source tools fo
 
 * **Stationary** and **transient** problems with fixed temperature, heat flux, convection and radiation boundaries, volume heat sources with pulses and spatial profiles, thermal boundary resistances and thin resistive layers at interfaces.
 * **Frequency domain** problems with the temperature oscillation driven at one frequency, as in the 3ω and FDTR methods.
+* **Hydrodynamic** phonon heat transport (the steady Guyer–Krumhansl equation): the heat flux is solved together with the temperature, giving Poiseuille flow in narrow structures and heat vortices beside current contacts.
 
 ## Where to go next
 

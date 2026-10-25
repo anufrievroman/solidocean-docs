@@ -2,7 +2,7 @@
 description: >-
   Fourier conduction in 3D structures: stationary, transient and
   frequency-domain problems, with contacts, pulses and temperature-dependent
-  properties.
+  properties, and steady hydrodynamic phonon flow.
 icon: temperature-three-quarters
 ---
 
@@ -167,6 +167,47 @@ variable = "f"
 values = "logspace(3, 6, 16) * 1[Hz]"
 ```
 
+### Hydrodynamic
+
+```toml
+[heat.problem]
+type = "hydrodynamic"
+viscous_length = "ell"      # the length l below
+```
+
+In a pure crystal at low temperature, where normal (momentum-conserving) phonon scattering dominates, the heat flux is no longer −k∇T: it flows like a viscous fluid, with Poiseuille profiles in narrow structures and vortices beside the contacts. This problem type solves the steady Guyer–Krumhansl equation for the heat flux **q** together with the temperature:
+
+$$
+\mathbf q + k\,\nabla T = \ell^2\left[\nabla^2\mathbf q + 2\,\nabla(\nabla\cdot\mathbf q)\right],\qquad \nabla\cdot\mathbf q = Q,
+$$
+
+with the viscous length ℓ (`viscous_length`) standing for the viscosity and the resistive scattering together. For ℓ → 0 the right-hand side vanishes and the equation is Fourier's law; when ℓ is comparable to the width of the structure the heat flow is viscous. The ratio χ = w²/ℓ² of a ribbon of width w measures the size of the effect: the transport is diffusive for χ well above 10, and the vortices appear below it.
+
+The equations have the form of Stokes flow, with **q** as the velocity and T as the pressure, so they need a stable pair of elements: quadratic **q** on every node of the mesh and linear T on its vertices (Taylor–Hood). The weak form, with the test functions **w** (quadratic, vector) and v (linear), is
+
+$$
+\int \frac{\mathbf q\cdot\mathbf w}{k} + \frac{\ell^2}{k}\int\left(\nabla\mathbf q:\nabla\mathbf w + 2\,\nabla\cdot\mathbf q\,\nabla\cdot\mathbf w\right) - \int T\,\nabla\cdot\mathbf w = -\int_S T_D\,\mathbf w\cdot\mathbf n,\qquad \int v\,\nabla\cdot\mathbf q = \int v\,Q,
+$$
+
+a saddle-point system of three unknowns per node for **q** and one per vertex for T, solved with a direct solver.
+
+The conditions of a heat model mean this here:
+
+| Condition | Meaning |
+| --- | --- |
+| `temperature` | a heat bath: T is prescribed and **q** is free (the natural condition of the weak form) |
+| `flux` | heat flowing in through the face, q = −flux·**n**, with its spatial `profile`; no slip along the face |
+| no condition | an insulated wall, **q** = 0 (no slip) |
+| `symmetry` plane | the normal component of **q** is zero, the tangential ones are free (no stress) |
+
+A slab closed by two symmetry planes is therefore exactly a two-dimensional model, which is how the template and its validation are set up. A model without any `temperature` condition is solved only if the heat entering through the fluxes and sources equals the heat leaving.
+
+{% hint style="info" %}
+Hydrodynamic problems need quadratic elements (`mesh.order = 2`), an isotropic conductivity, steady conditions and temperature-independent properties. Convection, radiation, pulses and thermal contacts are not available; the model is checked for these before it is solved. A contact with sharp edges makes the flux jump within one element, and the heat through a section then converges only slowly under mesh refinement: use smooth profiles, as the template does.
+{% endhint %}
+
+`qx`, `qy`, `qz` are the solved heat flux here, not −k∇T, so they differ from the gradient fields `Tx`, `Ty`, `Tz` (scaled by −k). The template **Hydrodynamic heat vortices** injects heat through a Gaussian contact on one side of a ribbon and removes it through the opposite one, and sweeps χ: the flux runs backwards beside the contacts below χ ≈ 10, and the plot `Backflow` (strongest backward over strongest forward flux) goes to zero as χ grows. The [validation](../validation/report.md) compares it with the exact solution of the infinite strip.
+
 ### Nonlinear models
 
 A model is nonlinear if a property depends on `T`, if a contact's `R` or layer depends on `T`, or if there is a `radiation` condition. It is then solved by iteration: the properties are taken at the previous iterate (Picard) and the radiation is linearised about it (Newton), until the largest temperature change falls below `tol` × the largest temperature — in a transient problem, at every time step. `max_iter` bounds the iterations; exceeding it is an error. Only the matrix that actually varies is reassembled, with the geometry and the sparsity pattern cached. A nonlinear stationary model needs a heat sink.
@@ -182,7 +223,7 @@ A model is nonlinear if a property depends on `T`, if a contact's `R` or layer d
 | ------------------------------ | ------------------------------------------------------------------------------------------------- |
 | `T`                            | temperature, K                                                                                    |
 | `Tx`, `Ty`, `Tz`               | ∇T, K/m                                                                                           |
-| `qx`, `qy`, `qz`               | heat flux −k∇T, W/m²                                                                              |
+| `qx`, `qy`, `qz`               | heat flux −k∇T, W/m² (hydrodynamic problems: the solved flux)                                     |
 | `x`, `y`, `z`                  | position, m                                                                                       |
 | `Tamp`, `Tphase`, `Tre`, `Tim` | frequency domain: amplitude, phase (degrees, negative = lagging), in-phase and out-of-phase parts |
 

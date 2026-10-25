@@ -465,8 +465,9 @@ profile = { shape = "gauss", center = ["x0", "0"], fwhm = "w" }
 
 | key | default | meaning |
 |---|---|---|
-| `type` | `"stationary"` | `stationary`, `transient` or `frequency` (frequency domain, see below). A stationary model without a heat sink (no `temperature` or `convection` condition) keeps the heat content of `initial`; it then has a steady state only if the heat put in equals the heat taken out |
+| `type` | `"stationary"` | `stationary`, `transient`, `frequency` (frequency domain) or `hydrodynamic` (see below). A stationary model without a heat sink (no `temperature` or `convection` condition) keeps the heat content of `initial`; it then has a steady state only if the heat put in equals the heat taken out |
 | `frequency` | `"f"` | frequency domain: the frequency of the oscillation, usually a variable swept with `[problem.sweep]`, e.g. `values = "logspace(3, 6, 16) * 1[Hz]"` |
+| `viscous_length` | `"1[um]"` | hydrodynamic: the viscous length ℓ of the Guyer–Krumhansl equation, usually a variable (e.g. swept to change the regime); 0 is Fourier's law |
 | `t_start` | `"0[s]"` | transient: start time, where the initial values apply; may be negative (e.g. a baseline before a pulse at t = 0) |
 | `t_end` | `"1[us]"` | transient: end time |
 | `steps` | `100` | transient: number of time steps |
@@ -476,6 +477,8 @@ profile = { shape = "gauss", center = ["x0", "0"], fwhm = "w" }
 | `max_iter` | `50` | nonlinear models: iterations allowed (per time step); more is an error |
 
 **Frequency domain** (`type = "frequency"`): the small-signal harmonic response, the observables of 3ω and FDTR measurements. Every heat flux and source oscillates at `frequency` with its value as complex amplitude (the `amplitude` of a `sine` time profile if it has one; other time profiles are ignored); fixed temperatures do not oscillate, convection and radiation (linearised about `initial`: sink 4εσT₀³) take heat out, and temperature-dependent properties are taken at `initial`. The solution is the complex amplitude T̂ of T(t) = Re(T̂ e^{iωt}), solved from (K + iωC) T̂ = F with the same mesh and matrices for every frequency of a sweep. Fields: `Tamp` (|T̂|, K), `Tphase` (degrees; negative = lagging the drive), `Tre`, `Tim` (in-phase and out-of-phase parts); `T`, `Tx`…, `qx`… are the real parts. Amplitude and phase of an average: `sqrt(mean(Tre)^2 + mean(Tim)^2)`, `atan2(mean(Tim), mean(Tre)) * 180/pi`. Templates: `heat_3omega`, `heat_fdtr`.
+
+**Hydrodynamic** (`type = "hydrodynamic"`): steady phonon hydrodynamics, solving **q** + k∇T = ℓ²[∇²**q** + 2∇(∇·**q**)], ∇·**q** = Q for the heat flux **q** and the temperature together (quadratic elements for **q**, linear for T). `temperature` conditions are heat baths (T prescribed, **q** free), `flux` conditions inject heat through a face (with its `profile`) and walls without a condition are insulated and do not slip; `symmetry` planes let **q** slide along them, so a slab between two of them is a 2D model. A model without a `temperature` condition needs the heat in to equal the heat out. Not available (an error says so): a mesh `order` other than 2, anisotropic or temperature-dependent materials, `convection` and `radiation` conditions, `pulse`s, and `heat.interfaces`. `qx qy qz` are the solved flux. See the template *Hydrodynamic heat vortices* and the [formalism](physics/heat-transfer.md#hydrodynamic).
 
 `[problem.sweep]` also applies to heat models (one solve per variable value). Results: `quantities.csv` (every plotted quantity per time and variable value) and `temperature.npz` (nodal temperatures, times, mesh); see `[output]`.
 
@@ -528,7 +531,7 @@ Every plot has a type, shown with its name in the GUI: **3D** views of the struc
 | XY | `conductance` | solid | that heat flux integrated over the bands, against temperature: the ballistic thermal conductance or the radiated power (coherent heat conduction) |
 | 3D | `field` | both | the structure coloured by a quantity (solid modes: the deformed, animated mode shape) |
 
-Without any `[[plots]]` a model gets the defaults of its physics: solid mechanics a dispersion plot and the displacement field (stationary: the displacement field; coherent heat conduction: a band map, the band surfaces and the displacement field); heat transfer the temperature field, plus the average temperature vs time for transient problems. Dispersion plots need an eigenfrequency problem, band maps, band surfaces, spectra and conductance curves a coherent heat conduction problem with a wavevector mesh, line and section plots field results (heat transfer or a stationary problem); others are skipped. Clicking a point of a 1D plot in the GUI shows the field there. A run writes a CSV per 1D plot (every non-frequency quantity, line and section); plots themselves are not written as images, and 3D field views are GUI only. Under every expression editor the interface offers a menu of the physics' named quantities.
+Without any `[[plots]]` a model gets the defaults of its physics: solid mechanics a dispersion plot and the displacement field (stationary: the displacement field; coherent heat conduction: a band map, the band surfaces and the displacement field); heat transfer the temperature field, plus the average temperature vs time for transient problems. Dispersion plots need an eigenfrequency problem, band maps, band surfaces, spectra and conductance curves a coherent heat conduction problem with a wavevector mesh, line and section plots field results (heat transfer or a stationary problem); others are skipped. Clicking a point of a 1D plot in the GUI shows the field there. A run writes a CSV per 1D plot (every non-frequency quantity, line, section, arrow and streamline plot); plots themselves are not written as images, and 3D field views are GUI only. Under every expression editor the interface offers a menu of the physics' named quantities.
 
 Profiles along a line (`kind = "line"`) take `start` and `end` (`[x, y, z]`, expressions, e.g. `["-L/2", "0", "t/2"]`), `points` (default 200), `line_axis` (`s` = distance from the start (default), or `x`, `y`, `z`), `at_time` (time step, -1 = the last) and `at` (variable value, -1 = all overlaid). The `quantity` is evaluated at each point (heat: T, Tx, Ty, Tz, qx, qy, qz; stationary solid mechanics: ux, uy, uz, strains, stresses, mises; x, y, z, variables; no `mean`/`max` reductions); points in holes or outside the structure are left out. The line may depend on the swept variable (e.g. along a beam of length L). The command line writes the profile as `<name>.csv`.
 
@@ -541,6 +544,20 @@ kind = "section"
 quantity = "T"
 plane = "xy"
 origin = ["0", "0", "0"]
+```
+
+Arrow plots (`kind = "quiver"`) and streamline plots (`kind = "stream"`) draw a vector quantity on the same kind of plane: `vector` gives its three components (`[x, y, z]`, expressions, e.g. `["qx", "qy", "qz"]` for the heat flux, the default of heat transfer, or `["ux", "uy", "uz"]` for the displacement of a stationary or frequency-domain solid problem), and the part of it lying in the plane is drawn. `plane`, `origin`, `rotation`, `resolution`, `at` and `at_time` are those of a cross-section. An optional `quantity` (a scalar, empty = none) is drawn behind as a colour map, with `colormap`, `color_min`, `color_max` and `color_label`, and the arrows or lines are then in the single colour `color` of the style; without it they are coloured by their in-plane magnitude on the colour scale. Arrows: `arrows` cells across the longer side of the plane (default 25, one arrow at the centre of each; the cells are square on the screen, so a stretched slender section gets more rows), `arrow_scale` (length of the longest arrow relative to the spacing, default 1) and `arrow_width` (relative to the default, 1). Streamlines: `stream_density` (default 1.5), `arrow_scale` (size of the heads) and `line_width` of the style; they run over the whole `resolution` grid and stop at holes and the structure's edge. Both take the style keys `colormap`, `colorbar`, `color`, `title`. The command line writes `<name>.csv` with the point x, y, z, the three components and the background quantity on the `resolution` grid. Example, the heat flux in the mid-plane over the temperature:
+
+```toml
+[[plots]]
+name = "Flux in the mid-plane"
+kind = "quiver"
+vector = ["qx", "qy", "qz"]
+quantity = "T"
+arrows = 30
+[plots.style]
+colormap = "magma"
+color = "#ffffff"
 ```
 
 Plots over the Brillouin zone need a wavevector mesh (`[solid.problem.kmesh]`). A band map (`kind = "kmap"`) draws band `band` (0-based; bands are numbered by ascending frequency at each wavevector, so a band is the n-th lowest surface and branches are not followed through their crossings) as filled contours on the meshed region, with the zone outlined and `at` choosing the value of the variable sweep. Band surfaces (`kind = "surfaces"`) draw `bands` of them from `band` up (`bands = 0`: all) as surfaces over kx, ky in a 3D view that the mouse turns; `colors = "bands"` gives each surface its own colour from `colormap`, `"single"` colours each by its own frequency. Both take `k_unit` for the wavevector axes (default `1/um` here), `x_min`/`x_max` for the kx range and `ky_min`/`ky_max` for the ky range (plain numbers in that unit, or an expression with units such as `"5e6[1/m]"`), and `y_min`/`y_max` for the quantity: the colour scale of a map, the vertical axis of the surfaces. Neither has a logarithmic axis, and clicking has no effect in the 3D view. Style: a map takes `markers` (its wavevectors), `levels`, `colormap`, `colorbar`, `grid` and `title`; the surfaces take `colormap` (the palette the per-band colours come from), `grid` and `title`. Line styles, single colours and legends play no part in either. The surfaces cover only the meshed region, so a mesh of the irreducible wedge shows a wedge: filling the zone from it by symmetry is still to come.

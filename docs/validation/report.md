@@ -184,6 +184,40 @@ The difference at the lowest frequencies comes from the finite model: the far fa
 
 **Checks:** ✅ phase difference (degrees), every frequency: 0.12 (≤ 0.20); ✅ amplitude difference, every frequency: 5.73e-03 (≤ 1.00e-02). Run time 52 s.
 
+### Heat vortices in hydrodynamic phonon transport
+
+Steady hydrodynamic phonon transport, the Guyer-Krumhansl equation for the heat flux $$\mathbf q$$ with the viscous length $$\ell$$ [1, 2],
+$$
+\mathbf q + k\nabla T = \ell^2\left[\nabla^2\mathbf q + 2\nabla(\nabla\cdot\mathbf q)\right],\qquad \nabla\cdot\mathbf q = 0,
+$$
+in a ribbon $$0 < y < w$$ (no slip, $$\mathbf q = 0$$ at the walls) between a source and a drain: heat $$I$$ per unit thickness enters through a Gaussian contact of width $$\sigma$$ on the wall $$y = 0$$ and leaves through the same contact on the opposite wall, as in Fig. 1c of [2]. The viscosity of the phonon gas then makes the heat flow in two counter-rotating vortices on either side of the direct flow, running backwards (from the cold to the hot side of the contacts) when $$\chi = w^2/\ell^2$$ is below about 10; at larger $$\chi$$ the transport is diffusive (Fourier's law) and the vortices vanish. The reference is the exact solution of the infinite strip, as in [2]. With the stream function $$\mathbf q = (-\partial_y\psi, \partial_x\psi)$$ the curl of the equation gives $$\nabla^2(\nabla^2 - \ell^{-2})\psi = 0$$, so each Fourier mode $$e^{i\xi x}$$ of $$\psi$$, even about the middle of the strip ($$s = y - w/2$$), is
+$$
+\psi_\xi = P\,\frac{\cosh \xi s}{\cosh(\xi w/2)} + R\,\frac{\cosh \xi' s}{\cosh(\xi' w/2)},\qquad \xi'^2 = \xi^2 + \ell^{-2},
+$$
+and the walls ($$\psi_\xi = I/i\xi$$ at $$y = 0$$ and $$y = w$$ for the contact, $$\partial_y\psi_\xi = 0$$ for no slip) fix
+$$
+P = \frac{I}{i\xi}\frac{\xi'\tanh(\xi' w/2)}{D},\quad R = -\frac{I}{i\xi}\frac{\xi\tanh(\xi w/2)}{D},\quad D = \xi'\tanh\tfrac{\xi' w}{2} - \xi\tanh\tfrac{\xi w}{2},
+$$
+times the transform $$e^{-\xi^2\sigma^2/2}$$ of the Gaussian contact. The $$x$$-component of the equation gives the temperature, only the part of $$\mathbf q$$ with $$\cosh \xi s$$ driving a gradient,
+$$
+T_\xi = -\frac{I}{k}\,\frac{\xi'\tanh(\xi' w/2)}{D}\,\frac{\sinh \xi s}{\xi\cosh(\xi w/2)}.
+$$
+The inverse transforms are one-dimensional quadratures.
+
+The model is the same problem in 3D: a slab $$8w$$ long, $$w$$ wide and $$w/4$$ thick, closed by the symmetry planes $$z = \pm w/8$$ (free slip, so it is exactly two-dimensional), with a heat bath at each end, $$4w$$ from the contacts (where the solution has decayed), no-slip walls, and the contacts as the prescribed heat flux $$q_0 \exp(-x^2/2\sigma^2)$$ with $$\sigma = 0.15\,w$$ on the faces $$y = \mp w/2$$. The viscous length is $$\ell = w/\sqrt{\chi}$$ with $$\chi = 0.5$$, the case of the paper's Fig. 1c. Quadratic elements for $$\mathbf q$$ and linear ones for $$T$$ (Taylor-Hood). The contacts are smooth on purpose: a contact with sharp edges makes the heat flux jump from its full value to zero within one element, and the heat flowing through a section is then conserved only slowly under mesh refinement (it was 25 % too large for a contact $$0.1\,w$$ wide on a mesh of $$w/8$$).
+
+The comparison is made on a regular grid of points between $$|x| \le 1.6\,w$$ and $$|y - w/2| \le 0.4\,w$$, which includes the vortices and reaches to $$0.1\,w$$ from the contacts. The reference for the temperature is the infinite strip, where $$T \to 0$$ far away, against the model's baths at $$300$$ K; the temperature is also the less accurate of the two fields, being linear in the elements.
+
+[1] R. A. Guyer and J. A. Krumhansl, Phys. Rev. 148, 766 (1966). [2] M.-Y. Shang, C. Zhang, Z. Guo and J.-T. Lü, Sci. Rep. 10, 8272 (2020).
+
+<figure><img src="../images/validation/hydro_vortex_profile.png" alt="Heat flux across the ribbon along its middle line, $$y = w/2$$ (mesh w/12), against the exact solution; right: the backflow of the vortices, a few percent of the direct flow."><figcaption><p>Heat flux across the ribbon along its middle line, $$y = w/2$$ (mesh w/12), against the exact solution; right: the backflow of the vortices, a few percent of the direct flow.</p></figcaption></figure>
+
+<figure><img src="../images/validation/hydro_vortex_lines.png" alt="Heat flux lines (contours of the stream function, equal heat flow between the five central ones, and the two closed loops of each vortex): exact solution (grey) and SolidOcean (green)."><figcaption><p>Heat flux lines (contours of the stream function, equal heat flow between the five central ones, and the two closed loops of each vortex): exact solution (grey) and SolidOcean (green).</p></figcaption></figure>
+
+Largest heat flux on the compared grid, $$q w / I$$ = 2.37; the vortex returns 1.7 % of the injected heat (model: 1.7 %).
+
+**Checks:** ✅ heat flux, largest error over the grid (of its peak): 0.7% (≤ 1.5%); ✅ temperature, rms error (of its rms): 4.2% (≤ 6.0%); ✅ heat through the strip against the injected (error): 3.71e-05 (≤ 2.00e-03); ✅ recirculating heat of the vortex, error: 0.1% (≤ 5.0%). Run time 6 s.
+
 ***
 
 _SolidOcean 0.2.0; generated 2026-10-15 on Darwin arm64, Python 3.13.16._
